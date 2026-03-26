@@ -135,7 +135,7 @@ interface ProductSyncItemInterface
     /**
      * @return string[]
      */
-    public function getCategoryNames(): array;
+    public function getCategoryNames();
 
     /**
      * @param string[] $categoryNames
@@ -166,26 +166,26 @@ interface ProductSyncItemInterface
     public function setUpdatedAt(string $updatedAt): self;
 
     /**
-     * @return int
+     * @return string
      */
-    public function getStatus(): int;
+    public function getStatus(): string;
 
     /**
-     * @param int $status
+     * @param string $status
      * @return $this
      */
-    public function setStatus(int $status): self;
+    public function setStatus(string $status): self;
 
     /**
-     * @return int
+     * @return string
      */
-    public function getVisibility(): int;
+    public function getVisibility(): string;
 
     /**
-     * @param int $visibility
+     * @param string $visibility
      * @return $this
      */
-    public function setVisibility(int $visibility): self;
+    public function setVisibility(string $visibility): self;
 
     /**
      * @return string|null
@@ -320,12 +320,12 @@ interface ProductSyncItemInterface
     public function setQtyIncrements(?float $qtyIncrements): self;
 
     /**
-     * @return array[]
+     * @return \HighSky\Products\Api\Data\ProductSyncItemInterface[]
      */
-    public function getVariants(): array;
+    public function getVariants();
 
     /**
-     * @param array[] $variants
+     * @param \HighSky\Products\Api\Data\ProductSyncItemInterface[] $variants
      * @return $this
      */
     public function setVariants(array $variants): self;

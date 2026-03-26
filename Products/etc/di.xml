@@ -17,4 +17,38 @@
                 type="HighSky\Products\Model\Mapper\ProductMapper"/>
     <preference for="HighSky\Products\Api\Response\ResponseBuilderInterface"
                 type="HighSky\Products\Model\Response\ResponseBuilder"/>
+
+    <type name="HighSky\Products\Model\Config\ApiColumnsConfig">
+        <arguments>
+            <argument name="defaultColumns" xsi:type="array">
+                <item name="id" xsi:type="string">ID</item>
+                <item name="sku" xsi:type="string">SKU</item>
+                <item name="name" xsi:type="string">Name</item>
+                <item name="price" xsi:type="string">Price</item>
+                <item name="special_price" xsi:type="string">Special Price</item>
+                <item name="special_from_date" xsi:type="string">Special From Date</item>
+                <item name="special_to_date" xsi:type="string">Special To Date</item>
+                <item name="cost" xsi:type="string">Cost</item>
+                <item name="tax_class_id" xsi:type="string">Tax Class ID</item>
+                <item name="category_names" xsi:type="string">Category Names</item>
+                <item name="created_at" xsi:type="string">Created At</item>
+                <item name="updated_at" xsi:type="string">Updated At</item>
+                <item name="status" xsi:type="string">Status</item>
+                <item name="visibility" xsi:type="string">Visibility</item>
+                <item name="image_url" xsi:type="string">Image URL</item>
+                <item name="qty" xsi:type="string">Qty</item>
+                <item name="is_in_stock" xsi:type="string">Is In Stock</item>
+                <item name="manage_stock" xsi:type="string">Manage Stock</item>
+                <item name="use_config_manage_stock" xsi:type="string">Use Config Manage Stock</item>
+                <item name="backorders" xsi:type="string">Backorders</item>
+                <item name="min_qty" xsi:type="string">Min Qty</item>
+                <item name="min_sale_qty" xsi:type="string">Min Sale Qty</item>
+                <item name="max_sale_qty" xsi:type="string">Max Sale Qty</item>
+                <item name="notify_stock_qty" xsi:type="string">Notify Stock Qty</item>
+                <item name="enable_qty_increments" xsi:type="string">Enable Qty Increments</item>
+                <item name="qty_increments" xsi:type="string">Qty Increments</item>
+                <item name="variants" xsi:type="string">Variants</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

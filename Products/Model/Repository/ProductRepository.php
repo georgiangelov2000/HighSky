@@ -4,13 +4,15 @@ declare(strict_types=1);
 namespace HighSky\Products\Model\Repository;
 
 use HighSky\Products\Api\Service\ProductRepositoryInterface;
+use HighSky\Products\Model\Config\ApiColumnsConfig;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 
 class ProductRepository implements ProductRepositoryInterface
 {
     public function __construct(
-        private readonly CollectionFactory $productCollectionFactory
+        private readonly CollectionFactory $productCollectionFactory,
+        private readonly ApiColumnsConfig $apiColumnsConfig
     ) {}
 
     public function getList(?string $updateAfter, int $perPage, int $currentPage): array
@@ -44,6 +46,10 @@ class ProductRepository implements ProductRepositoryInterface
             'visibility',
             'image',
         ]);
+        $extraAttributeCodes = $this->apiColumnsConfig->getExtraAttributeCodes();
+        if ($extraAttributeCodes !== []) {
+            $collection->addAttributeToSelect($extraAttributeCodes);
+        }
 
         if ($updateAfter !== null) {
             $connection = $collection->getConnection();

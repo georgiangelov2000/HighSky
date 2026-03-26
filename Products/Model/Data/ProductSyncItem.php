@@ -165,15 +165,16 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     }
 
     /**
-     * @inheritdoc
+     * @return string[]
      */
-    public function getCategoryNames(): array
+    public function getCategoryNames()
     {
         return $this->_get(self::CATEGORY_NAMES) ?? [];
     }
 
     /**
-     * @inheritdoc
+     * @param string[] $categoryNames
+     * @return \HighSky\Products\Api\Data\ProductSyncItemInterface
      */
     public function setCategoryNames(array $categoryNames): ProductSyncItemInterface
     {
@@ -215,15 +216,15 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     /**
      * @inheritdoc
      */
-    public function getStatus(): int
+    public function getStatus(): string
     {
-        return (int) $this->_get(self::STATUS);
+        return (string) $this->_get(self::STATUS);
     }
 
     /**
      * @inheritdoc
      */
-    public function setStatus(int $status): ProductSyncItemInterface
+    public function setStatus(string $status): ProductSyncItemInterface
     {
         return $this->setData(self::STATUS, $status);
     }
@@ -231,15 +232,15 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     /**
      * @inheritdoc
      */
-    public function getVisibility(): int
+    public function getVisibility(): string
     {
-        return (int) $this->_get(self::VISIBILITY);
+        return (string) $this->_get(self::VISIBILITY);
     }
 
     /**
      * @inheritdoc
      */
-    public function setVisibility(int $visibility): ProductSyncItemInterface
+    public function setVisibility(string $visibility): ProductSyncItemInterface
     {
         return $this->setData(self::VISIBILITY, $visibility);
     }
@@ -451,15 +452,16 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     }
 
     /**
-     * @inheritdoc
+     * @return \HighSky\Products\Api\Data\ProductSyncItemInterface[]
      */
-    public function getVariants(): array
+    public function getVariants()
     {
         return $this->_get(self::VARIANTS) ?? [];
     }
 
     /**
-     * @inheritdoc
+     * @param \HighSky\Products\Api\Data\ProductSyncItemInterface[] $variants
+     * @return \HighSky\Products\Api\Data\ProductSyncItemInterface
      */
     public function setVariants(array $variants): ProductSyncItemInterface
     {

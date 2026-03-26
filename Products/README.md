@@ -32,6 +32,21 @@ Configured in `etc/webapi.xml` and handled by `HighSky\Products\Api\ProductSyncI
 | `per_page` | No | `int` | Default: `100`, max: `200` |
 | `update_after` | No | `string` | Format: `Y-m-d H:i:s` |
 
+## Admin Configuration
+
+In Magento Admin, go to:
+
+```text
+Stores > Configuration > Catalog > HighSky Products
+```
+
+There you can:
+
+- choose which standard API columns are included in the response
+- add extra Magento product attribute codes as comma-separated custom columns
+
+This allows the API payload to evolve without changing the endpoint contract each time a client needs one more attribute.
+
 ## Parameter Behavior
 
 ### `update_after`

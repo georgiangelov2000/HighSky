@@ -70,7 +70,7 @@ interface ProductSyncResponseInterface
     /**
      * @return \HighSky\Products\Api\Data\ProductSyncItemInterface[]
      */
-    public function getProducts(): array;
+    public function getProducts();
 
     /**
      * @param \HighSky\Products\Api\Data\ProductSyncItemInterface[] $products

@@ -7,8 +7,10 @@ use HighSky\Products\Api\Data\ProductSyncItemInterface;
 use HighSky\Products\Api\Mapper\ProductMapperInterface;
 use HighSky\Products\Model\Data\ProductSyncItemFactory;
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Model\Product\Media\Config as MediaConfig;
+use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable as ConfigurableProductType;
 
@@ -21,6 +23,7 @@ class ProductMapper implements ProductMapperInterface
 
     public function __construct(
         private readonly ProductSyncItemFactory $productSyncItemFactory,
+        private readonly ProductStatus $productStatus,
         private readonly MediaConfig $mediaConfig,
         private readonly StockRegistryInterface $stockRegistry,
         private readonly CategoryCollectionFactory $categoryCollectionFactory,
@@ -49,8 +52,8 @@ class ProductMapper implements ProductMapperInterface
         $item->setCategoryNames($this->getCategoryNames($categoryIds));
         $item->setCreatedAt((string) $product->getData('created_at'));
         $item->setUpdatedAt((string) $product->getData('updated_at'));
-        $item->setStatus((int) $product->getStatus());
-        $item->setVisibility((int) $product->getVisibility());
+        $item->setStatus($this->getStatusLabel((int) $product->getStatus()));
+        $item->setVisibility($this->getVisibilityLabel((int) $product->getVisibility()));
         $item->setImageUrl($this->getImageUrl($product));
         $item->setQty($stockItem && $stockItem->getQty() !== null ? (float) $stockItem->getQty() : null);
         $item->setIsInStock($stockItem ? (bool) $stockItem->getIsInStock() : false);
@@ -69,7 +72,7 @@ class ProductMapper implements ProductMapperInterface
     }
 
     /**
-     * @return array[]
+     * @return ProductSyncItemInterface[]
      */
     private function getVariants(Product $product): array
     {
@@ -79,10 +82,20 @@ class ProductMapper implements ProductMapperInterface
 
         $variants = [];
         foreach ($this->configurableProductType->getUsedProducts($product) as $variantProduct) {
-            $variants[] = $this->mapProduct($variantProduct, false)->__toArray();
+            $variants[] = $this->mapProduct($variantProduct, false);
         }
 
         return $variants;
+    }
+
+    private function getStatusLabel(int $status): string
+    {
+        return (string) ($this->productStatus->getOptionText((string) $status) ?: $status);
+    }
+
+    private function getVisibilityLabel(int $visibility): string
+    {
+        return (string) (ProductVisibility::getOptionText($visibility) ?: $visibility);
     }
 
     private function getImageUrl(Product $product): ?string

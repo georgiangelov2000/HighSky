@@ -91,15 +91,16 @@ class ProductSyncResponse extends AbstractSimpleObject implements ProductSyncRes
     }
 
     /**
-     * @inheritdoc
+     * @return \HighSky\Products\Api\Data\ProductSyncItemInterface[]
      */
-    public function getProducts(): array
+    public function getProducts()
     {
         return $this->_get(self::PRODUCTS) ?? [];
     }
 
     /**
-     * @inheritdoc
+     * @param \HighSky\Products\Api\Data\ProductSyncItemInterface[] $products
+     * @return \HighSky\Products\Api\Data\ProductSyncResponseInterface
      */
     public function setProducts(array $products): ProductSyncResponseInterface
     {
