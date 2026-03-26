@@ -14,7 +14,6 @@ interface ProductSyncItemInterface
     public const SPECIAL_TO_DATE = 'special_to_date';
     public const COST = 'cost';
     public const TAX_CLASS_ID = 'tax_class_id';
-    public const CATEGORY_IDS = 'category_ids';
     public const CATEGORY_NAMES = 'category_names';
     public const CREATED_AT = 'created_at';
     public const UPDATED_AT = 'updated_at';
@@ -32,6 +31,7 @@ interface ProductSyncItemInterface
     public const NOTIFY_STOCK_QTY = 'notify_stock_qty';
     public const ENABLE_QTY_INCREMENTS = 'enable_qty_increments';
     public const QTY_INCREMENTS = 'qty_increments';
+    public const VARIANTS = 'variants';
 
     /**
      * @return int
@@ -131,17 +131,6 @@ interface ProductSyncItemInterface
      * @return $this
      */
     public function setTaxClassId(?int $taxClassId): self;
-
-    /**
-     * @return int[]
-     */
-    public function getCategoryIds(): array;
-
-    /**
-     * @param int[] $categoryIds
-     * @return $this
-     */
-    public function setCategoryIds(array $categoryIds): self;
 
     /**
      * @return string[]
@@ -329,4 +318,15 @@ interface ProductSyncItemInterface
      * @return $this
      */
     public function setQtyIncrements(?float $qtyIncrements): self;
+
+    /**
+     * @return array[]
+     */
+    public function getVariants(): array;
+
+    /**
+     * @param array[] $variants
+     * @return $this
+     */
+    public function setVariants(array $variants): self;
 }

@@ -167,22 +167,6 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     /**
      * @inheritdoc
      */
-    public function getCategoryIds(): array
-    {
-        return $this->_get(self::CATEGORY_IDS) ?? [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setCategoryIds(array $categoryIds): ProductSyncItemInterface
-    {
-        return $this->setData(self::CATEGORY_IDS, $categoryIds);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getCategoryNames(): array
     {
         return $this->_get(self::CATEGORY_NAMES) ?? [];
@@ -464,5 +448,21 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     public function setQtyIncrements(?float $qtyIncrements): ProductSyncItemInterface
     {
         return $this->setData(self::QTY_INCREMENTS, $qtyIncrements);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getVariants(): array
+    {
+        return $this->_get(self::VARIANTS) ?? [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setVariants(array $variants): ProductSyncItemInterface
+    {
+        return $this->setData(self::VARIANTS, $variants);
     }
 }

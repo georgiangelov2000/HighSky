@@ -96,7 +96,6 @@ Each product item contains:
 - `special_to_date`
 - `cost`
 - `tax_class_id`
-- `category_ids`
 - `category_names`
 - `created_at`
 - `updated_at`
@@ -114,6 +113,7 @@ Each product item contains:
 - `notify_stock_qty`
 - `enable_qty_increments`
 - `qty_increments`
+- `variants`
 
 ## Example Requests
 
@@ -149,7 +149,6 @@ curl -H "Accept: application/json" "https://magento.test/rest/V1/highsky/sync/pr
       "special_to_date": null,
       "cost": null,
       "tax_class_id": 2,
-      "category_ids": [3, 8],
       "category_names": ["Phones", "Apple"],
       "created_at": "2026-03-25 22:04:59",
       "updated_at": "2026-03-25 22:04:59",
@@ -166,7 +165,8 @@ curl -H "Accept: application/json" "https://magento.test/rest/V1/highsky/sync/pr
       "max_sale_qty": 10000,
       "notify_stock_qty": 1,
       "enable_qty_increments": false,
-      "qty_increments": null
+      "qty_increments": null,
+      "variants": []
     }
   ]
 }

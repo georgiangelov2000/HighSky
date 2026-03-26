@@ -5,11 +5,12 @@ namespace HighSky\Products\Model\Mapper;
 
 use HighSky\Products\Api\Data\ProductSyncItemInterface;
 use HighSky\Products\Api\Mapper\ProductMapperInterface;
-use Magento\Catalog\Model\Product;
 use HighSky\Products\Model\Data\ProductSyncItemFactory;
+use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Model\Product\Media\Config as MediaConfig;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable as ConfigurableProductType;
 
 class ProductMapper implements ProductMapperInterface
 {
@@ -22,10 +23,16 @@ class ProductMapper implements ProductMapperInterface
         private readonly ProductSyncItemFactory $productSyncItemFactory,
         private readonly MediaConfig $mediaConfig,
         private readonly StockRegistryInterface $stockRegistry,
-        private readonly CategoryCollectionFactory $categoryCollectionFactory
+        private readonly CategoryCollectionFactory $categoryCollectionFactory,
+        private readonly ConfigurableProductType $configurableProductType
     ) {}
 
     public function map(Product $product): ProductSyncItemInterface
+    {
+        return $this->mapProduct($product, true);
+    }
+
+    private function mapProduct(Product $product, bool $includeVariants): ProductSyncItemInterface
     {
         $stockItem = $this->stockRegistry->getStockItem((int) $product->getId());
         $categoryIds = array_map('intval', $product->getCategoryIds() ?: []);
@@ -39,7 +46,6 @@ class ProductMapper implements ProductMapperInterface
         $item->setSpecialToDate($product->getData('special_to_date') ?: null);
         $item->setCost($product->getData('cost') !== null ? (float) $product->getData('cost') : null);
         $item->setTaxClassId($product->getData('tax_class_id') !== null ? (int) $product->getData('tax_class_id') : null);
-        $item->setCategoryIds($categoryIds);
         $item->setCategoryNames($this->getCategoryNames($categoryIds));
         $item->setCreatedAt((string) $product->getData('created_at'));
         $item->setUpdatedAt((string) $product->getData('updated_at'));
@@ -57,8 +63,26 @@ class ProductMapper implements ProductMapperInterface
         $item->setNotifyStockQty($stockItem && $stockItem->getNotifyStockQty() !== null ? (float) $stockItem->getNotifyStockQty() : null);
         $item->setEnableQtyIncrements($stockItem ? (bool) $stockItem->getEnableQtyIncrements() : false);
         $item->setQtyIncrements($stockItem && $stockItem->getQtyIncrements() !== null ? (float) $stockItem->getQtyIncrements() : null);
+        $item->setVariants($includeVariants ? $this->getVariants($product) : []);
 
         return $item;
+    }
+
+    /**
+     * @return array[]
+     */
+    private function getVariants(Product $product): array
+    {
+        if ($product->getTypeId() !== ConfigurableProductType::TYPE_CODE) {
+            return [];
+        }
+
+        $variants = [];
+        foreach ($this->configurableProductType->getUsedProducts($product) as $variantProduct) {
+            $variants[] = $this->mapProduct($variantProduct, false)->__toArray();
+        }
+
+        return $variants;
     }
 
     private function getImageUrl(Product $product): ?string
