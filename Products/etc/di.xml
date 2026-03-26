@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="HighSky\Products\Api\ProductSyncInterface"
+                type="HighSky\Products\Model\ProductSync"/>
+    <preference for="HighSky\Products\Api\Data\ProductSyncItemInterface"
+                type="HighSky\Products\Model\Data\ProductSyncItem"/>
+    <preference for="HighSky\Products\Api\Data\ProductSyncResponseInterface"
+                type="HighSky\Products\Model\Data\ProductSyncResponse"/>
+    <preference for="HighSky\Products\Api\Service\ProductSyncServiceInterface"
+                type="HighSky\Products\Model\Service\ProductSyncService"/>
+    <preference for="HighSky\Products\Api\Service\ProductRepositoryInterface"
+                type="HighSky\Products\Model\Repository\ProductRepository"/>
+    <preference for="HighSky\Products\Api\Validator\RequestValidatorInterface"
+                type="HighSky\Products\Model\Validator\RequestValidator"/>
+    <preference for="HighSky\Products\Api\Mapper\ProductMapperInterface"
+                type="HighSky\Products\Model\Mapper\ProductMapper"/>
+    <preference for="HighSky\Products\Api\Response\ResponseBuilderInterface"
+                type="HighSky\Products\Model\Response\ResponseBuilder"/>
+</config>
