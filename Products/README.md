@@ -1,9 +1,9 @@
 # HighSky_Products
 
-`HighSky_Products` is a Magento 2 module that exposes a REST API endpoint for product synchronization:
+`HighSky_Products` exposes a Magento 2 REST API endpoint for product synchronization:
 
 ```text
-GET /rest/highsky/v1/sync/products
+GET /rest/V1/highsky/sync/products
 ```
 
 The module uses Magento service contracts and DTOs, so the response is returned as a structured JSON object with named keys.
@@ -12,14 +12,15 @@ The module uses Magento service contracts and DTOs, so the response is returned 
 
 - exposes an anonymous Magento Web API endpoint for product sync
 - validates and normalizes incoming request parameters
+- filters products by a single `update_after` timestamp
 - returns paginated product data with pricing, category, image, and stock details
 - uses DTO-based responses for predictable JSON output
-- keeps pagination deterministic with `entity_id ASC` ordering
+- keeps pagination deterministic with `updated_at ASC, entity_id ASC` ordering
 
 ## Endpoint
 
 ```text
-GET /rest/highsky/v1/sync/products
+GET /rest/V1/highsky/sync/products
 ```
 
 Configured in `etc/webapi.xml` and handled by `HighSky\Products\Api\ProductSyncInterface::execute()`.
@@ -28,71 +29,61 @@ Configured in `etc/webapi.xml` and handled by `HighSky\Products\Api\ProductSyncI
 
 | Parameter | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `status` | Yes | `string` | Allowed values: `new`, `old` |
-| `from` | No | `string` | Format: `Y-m-d H:i:s` |
-| `to` | No | `string` | Format: `Y-m-d H:i:s` |
-| `limit` | No | `int` | Default: `100`, max: `200` |
-| `offset` | No | `int` | Default: `0` |
+| `per_page` | No | `int` | Default: `100`, max: `200` |
+| `update_after` | No | `string` | Format: `Y-m-d H:i:s` |
+
+## Parameter Behavior
+
+### `update_after`
+
+When `update_after` is provided, the endpoint returns products where either:
+
+- `created_at > update_after`
+- `updated_at > update_after`
+
+This includes both:
+
+- products newly created after the timestamp
+- products that already existed but were updated after the timestamp
+
+When `update_after` is omitted, the endpoint returns all products.
+
+### `per_page`
+
+`per_page` defines how many products are returned in the response page.
+
+The response uses the full filtered result set to calculate:
+
+- `total_count`
+- `total_pages`
+- `current_page`
 
 ## Validation Rules
 
 The API returns a Magento validation error when:
 
-- `status` is missing or not `new` / `old`
-- only one of `from` or `to` is provided
-- `from` or `to` does not match `Y-m-d H:i:s`
-- `from` is later than or equal to `to`
-- `limit` is not an integer
-- `limit` is less than `1`
-- `offset` is not an integer
-- `offset` is less than `0`
-
-## Date Normalization
-
-When both `from` and `to` are present:
-
-- `from` is normalized to `00:00:00`
-- `to` is normalized to `23:59:59`
-
-Example:
-
-- input `from=2026-03-24 15:30:00`
-- normalized `from=2026-03-24 00:00:00`
-- input `to=2026-03-26 09:10:00`
-- normalized `to=2026-03-26 23:59:59`
-
-When `from` and `to` are omitted, the service uses a fallback window covering the last `2` days.
+- `per_page` is not an integer
+- `per_page` is less than `1`
+- `update_after` does not match `Y-m-d H:i:s`
 
 ## Pagination
 
-- default `limit` is `100`
-- maximum `limit` is `200`
-- default `offset` is `0`
-- results are ordered by `entity_id ASC`
-- the repository loads `limit + 1` items internally to calculate `has_more`
-
-The response includes:
-
-- `count`
-- `limit`
-- `offset`
-- `has_more`
-- `next_offset`
+- default `per_page` is `100`
+- maximum `per_page` is `200`
+- results are ordered by `updated_at ASC, entity_id ASC`
+- `total_count` is calculated from all products matching `update_after`
+- `current_page` is currently fixed to `1` because the endpoint contract only accepts `per_page` and `update_after`
 
 ## Response Shape
 
 Top-level response keys:
 
-- `status`
-- `updated_after`
-- `count`
-- `limit`
-- `offset`
-- `has_more`
-- `next_offset`
+- `update_after`
+- `per_page`
+- `current_page`
+- `total_count`
+- `total_pages`
 - `products`
-
-`updated_after` is populated for `status=old` responses and otherwise remains `null`.
 
 Each product item contains:
 
@@ -127,27 +118,26 @@ Each product item contains:
 ## Example Requests
 
 ```bash
-curl -H "Accept: application/json" "https://magento.test/rest/highsky/v1/sync/products?status=new"
+curl -H "Accept: application/json" "https://magento.test/rest/V1/highsky/sync/products"
 ```
 
 ```bash
-curl -H "Accept: application/json" "https://magento.test/rest/highsky/v1/sync/products?status=old"
+curl -H "Accept: application/json" "https://magento.test/rest/V1/highsky/sync/products?per_page=50"
 ```
 
 ```bash
-curl -H "Accept: application/json" "https://magento.test/rest/highsky/v1/sync/products?status=new&from=2026-03-24%2000:00:00&to=2026-03-26%2000:00:00&limit=50&offset=0"
+curl -H "Accept: application/json" "https://magento.test/rest/V1/highsky/sync/products?per_page=50&update_after=2026-03-24%2000:00:00"
 ```
 
 ## Example Response
 
 ```json
 {
-  "status": "new",
-  "count": 1,
-  "limit": 100,
-  "offset": 0,
-  "has_more": false,
-  "next_offset": null,
+  "update_after": "2026-03-24 00:00:00",
+  "per_page": 50,
+  "current_page": 1,
+  "total_count": 1,
+  "total_pages": 1,
   "products": [
     {
       "id": 1,

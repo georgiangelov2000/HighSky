@@ -14,12 +14,9 @@ class ProductSync implements ProductSyncInterface
     ) {}
 
     public function execute(
-        ?string $status = null,
-        ?string $from = null,
-        ?string $to = null,
-        $limit = null,
-        $offset = null
+        $perPage = null,
+        ?string $updateAfter = null
     ): ProductSyncResponseInterface {
-        return $this->productSyncService->execute($status, $from, $to, $limit, $offset);
+        return $this->productSyncService->execute($perPage, $updateAfter);
     }
 }

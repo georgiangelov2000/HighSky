@@ -5,91 +5,67 @@ namespace HighSky\Products\Api\Data;
 
 interface ProductSyncResponseInterface
 {
-    public const STATUS = 'status';
-    public const UPDATED_AFTER = 'updated_after';
-    public const COUNT = 'count';
-    public const LIMIT = 'limit';
-    public const OFFSET = 'offset';
-    public const HAS_MORE = 'has_more';
-    public const NEXT_OFFSET = 'next_offset';
+    public const UPDATE_AFTER = 'update_after';
+    public const PER_PAGE = 'per_page';
+    public const CURRENT_PAGE = 'current_page';
+    public const TOTAL_COUNT = 'total_count';
+    public const TOTAL_PAGES = 'total_pages';
     public const PRODUCTS = 'products';
-
-    /**
-     * @return string
-     */
-    public function getStatus(): string;
-
-    /**
-     * @param string $status
-     * @return $this
-     */
-    public function setStatus(string $status): self;
 
     /**
      * @return string|null
      */
-    public function getUpdatedAfter(): ?string;
+    public function getUpdateAfter(): ?string;
 
     /**
-     * @param string|null $updatedAfter
+     * @param string|null $updateAfter
      * @return $this
      */
-    public function setUpdatedAfter(?string $updatedAfter): self;
+    public function setUpdateAfter(?string $updateAfter): self;
 
     /**
      * @return int
      */
-    public function getCount(): int;
+    public function getPerPage(): int;
 
     /**
-     * @param int $count
+     * @param int $perPage
      * @return $this
      */
-    public function setCount(int $count): self;
+    public function setPerPage(int $perPage): self;
 
     /**
      * @return int
      */
-    public function getLimit(): int;
+    public function getCurrentPage(): int;
 
     /**
-     * @param int $limit
+     * @param int $currentPage
      * @return $this
      */
-    public function setLimit(int $limit): self;
+    public function setCurrentPage(int $currentPage): self;
 
     /**
      * @return int
      */
-    public function getOffset(): int;
+    public function getTotalCount(): int;
 
     /**
-     * @param int $offset
+     * @param int $totalCount
      * @return $this
      */
-    public function setOffset(int $offset): self;
+    public function setTotalCount(int $totalCount): self;
 
     /**
-     * @return bool
+     * @return int
      */
-    public function getHasMore(): bool;
+    public function getTotalPages(): int;
 
     /**
-     * @param bool $hasMore
+     * @param int $totalPages
      * @return $this
      */
-    public function setHasMore(bool $hasMore): self;
-
-    /**
-     * @return int|null
-     */
-    public function getNextOffset(): ?int;
-
-    /**
-     * @param int|null $nextOffset
-     * @return $this
-     */
-    public function setNextOffset(?int $nextOffset): self;
+    public function setTotalPages(int $totalPages): self;
 
     /**
      * @return \HighSky\Products\Api\Data\ProductSyncItemInterface[]

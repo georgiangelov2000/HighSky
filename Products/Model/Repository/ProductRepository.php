@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace HighSky\Products\Model\Repository;
 
 use HighSky\Products\Api\Service\ProductRepositoryInterface;
-use HighSky\Products\Model\Config\SyncConfig;
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 
 class ProductRepository implements ProductRepositoryInterface
@@ -13,7 +13,23 @@ class ProductRepository implements ProductRepositoryInterface
         private readonly CollectionFactory $productCollectionFactory
     ) {}
 
-    public function getList(string $status, string $from, string $to, int $limit, int $offset): array
+    public function getList(?string $updateAfter, int $perPage, int $currentPage): array
+    {
+        $collection = $this->buildCollection($updateAfter);
+        $totalCount = (int) $collection->getSize();
+
+        $collection->setPageSize($perPage);
+        $collection->setCurPage($currentPage);
+        $collection->addOrder('updated_at', Collection::SORT_ORDER_ASC);
+        $collection->addOrder('entity_id', Collection::SORT_ORDER_ASC);
+
+        return [
+            'items' => array_values($collection->getItems()),
+            'total_count' => $totalCount,
+        ];
+    }
+
+    private function buildCollection(?string $updateAfter): Collection
     {
         $collection = $this->productCollectionFactory->create();
         $collection->addAttributeToSelect([
@@ -29,20 +45,13 @@ class ProductRepository implements ProductRepositoryInterface
             'image',
         ]);
 
-        // Use a stable order across all requests to keep pagination deterministic.
-        $collection->addOrder('entity_id', 'ASC');
-        $collection->getSelect()->limit($limit + 1, $offset);
-
-        $items = $collection->getItems();
-
-        $hasMore = count($items) > $limit;
-        if ($hasMore) {
-            array_pop($items);
+        if ($updateAfter !== null) {
+            $connection = $collection->getConnection();
+            $createdAtCondition = $connection->quoteInto('e.created_at > ?', $updateAfter);
+            $updatedAtCondition = $connection->quoteInto('e.updated_at > ?', $updateAfter);
+            $collection->getSelect()->where(sprintf('(%s OR %s)', $createdAtCondition, $updatedAtCondition));
         }
 
-        return [
-            'items' => array_values($items),
-            'has_more' => $hasMore,
-        ];
+        return $collection;
     }
 }

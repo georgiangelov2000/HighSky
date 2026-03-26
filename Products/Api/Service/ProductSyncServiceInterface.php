@@ -10,18 +10,12 @@ interface ProductSyncServiceInterface
     /**
      * Orchestrate validation, filtering, mapping and response building.
      *
-     * @param string|null $status
-     * @param string|null $from
-     * @param string|null $to
-     * @param int|string|null $limit
-     * @param int|string|null $offset
+     * @param int|string|null $perPage
+     * @param string|null $updateAfter
      * @return ProductSyncResponseInterface
      */
     public function execute(
-        ?string $status = null,
-        ?string $from = null,
-        ?string $to = null,
-        $limit = null,
-        $offset = null
+        $perPage = null,
+        ?string $updateAfter = null
     ): ProductSyncResponseInterface;
 }

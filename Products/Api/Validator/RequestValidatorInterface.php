@@ -8,18 +8,12 @@ interface RequestValidatorInterface
     /**
      * Validate and normalize request parameters.
      *
-     * @param string|null $status
-     * @param string|null $from
-     * @param string|null $to
-     * @param int|string|null $limit
-     * @param int|string|null $offset
-     * @return array{status:string,from:?string,to:?string,limit:int,offset:int}
+     * @param int|string|null $perPage
+     * @param string|null $updateAfter
+     * @return array{per_page:int,update_after:?string,current_page:int}
      */
     public function validate(
-        ?string $status = null,
-        ?string $from = null,
-        ?string $to = null,
-        $limit = null,
-        $offset = null
+        $perPage = null,
+        ?string $updateAfter = null
     ): array;
 }

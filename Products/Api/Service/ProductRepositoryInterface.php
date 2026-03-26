@@ -6,14 +6,12 @@ namespace HighSky\Products\Api\Service;
 interface ProductRepositoryInterface
 {
     /**
-     * Fetch one page of products plus one extra row to detect whether more data exists.
+     * Fetch the filtered products page and total count.
      *
-     * @param string $status
-     * @param string $from
-     * @param string $to
-     * @param int $limit
-     * @param int $offset
-     * @return array{items: array, has_more: bool}
+     * @param string|null $updateAfter
+     * @param int $perPage
+     * @param int $currentPage
+     * @return array{items: array, total_count: int}
      */
-    public function getList(string $status, string $from, string $to, int $limit, int $offset): array;
+    public function getList(?string $updateAfter, int $perPage, int $currentPage): array;
 }

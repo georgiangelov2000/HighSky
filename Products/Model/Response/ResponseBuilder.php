@@ -5,7 +5,6 @@ namespace HighSky\Products\Model\Response;
 
 use HighSky\Products\Api\Data\ProductSyncResponseInterface;
 use HighSky\Products\Api\Response\ResponseBuilderInterface;
-use HighSky\Products\Model\Config\SyncConfig;
 use HighSky\Products\Model\Data\ProductSyncResponseFactory;
 
 class ResponseBuilder implements ResponseBuilderInterface
@@ -15,25 +14,19 @@ class ResponseBuilder implements ResponseBuilderInterface
     ) {}
 
     public function build(
-        string $status,
+        ?string $updateAfter,
         array $products,
-        int $limit,
-        int $offset,
-        bool $hasMore,
-        ?string $updatedAfter = null
+        int $perPage,
+        int $currentPage,
+        int $totalCount
     ): ProductSyncResponseInterface {
         $response = $this->productSyncResponseFactory->create();
-        $response->setStatus($status);
-        $response->setCount(count($products));
-        $response->setLimit($limit);
-        $response->setOffset($offset);
-        $response->setHasMore($hasMore);
-        $response->setNextOffset($hasMore ? $offset + $limit : null);
+        $response->setUpdateAfter($updateAfter);
+        $response->setPerPage($perPage);
+        $response->setCurrentPage($currentPage);
+        $response->setTotalCount($totalCount);
+        $response->setTotalPages($perPage > 0 ? (int) ceil($totalCount / $perPage) : 0);
         $response->setProducts($products);
-
-        if ($status === SyncConfig::STATUS_OLD) {
-            $response->setUpdatedAfter($updatedAfter);
-        }
 
         return $response;
     }

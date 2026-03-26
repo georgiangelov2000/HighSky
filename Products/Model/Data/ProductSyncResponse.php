@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace HighSky\Products\Model\Data;
 
-use HighSky\Products\Api\Data\ProductSyncItemInterface;
 use HighSky\Products\Api\Data\ProductSyncResponseInterface;
 use Magento\Framework\Api\AbstractSimpleObject;
 
@@ -12,117 +11,83 @@ class ProductSyncResponse extends AbstractSimpleObject implements ProductSyncRes
     /**
      * @inheritdoc
      */
-    public function getStatus(): string
+    public function getUpdateAfter(): ?string
     {
-        return (string) $this->_get(self::STATUS);
+        $updateAfter = $this->_get(self::UPDATE_AFTER);
+
+        return $updateAfter !== null ? (string) $updateAfter : null;
     }
 
     /**
      * @inheritdoc
      */
-    public function setStatus(string $status): ProductSyncResponseInterface
+    public function setUpdateAfter(?string $updateAfter): ProductSyncResponseInterface
     {
-        return $this->setData(self::STATUS, $status);
+        return $this->setData(self::UPDATE_AFTER, $updateAfter);
     }
 
     /**
      * @inheritdoc
      */
-    public function getUpdatedAfter(): ?string
+    public function getPerPage(): int
     {
-        $updatedAfter = $this->_get(self::UPDATED_AFTER);
-
-        return $updatedAfter !== null ? (string) $updatedAfter : null;
+        return (int) $this->_get(self::PER_PAGE);
     }
 
     /**
      * @inheritdoc
      */
-    public function setUpdatedAfter(?string $updatedAfter): ProductSyncResponseInterface
+    public function setPerPage(int $perPage): ProductSyncResponseInterface
     {
-        return $this->setData(self::UPDATED_AFTER, $updatedAfter);
+        return $this->setData(self::PER_PAGE, $perPage);
     }
 
     /**
      * @inheritdoc
      */
-    public function getCount(): int
+    public function getCurrentPage(): int
     {
-        return (int) $this->_get(self::COUNT);
+        return (int) $this->_get(self::CURRENT_PAGE);
     }
 
     /**
      * @inheritdoc
      */
-    public function setCount(int $count): ProductSyncResponseInterface
+    public function setCurrentPage(int $currentPage): ProductSyncResponseInterface
     {
-        return $this->setData(self::COUNT, $count);
+        return $this->setData(self::CURRENT_PAGE, $currentPage);
     }
 
     /**
      * @inheritdoc
      */
-    public function getLimit(): int
+    public function getTotalCount(): int
     {
-        return (int) $this->_get(self::LIMIT);
+        return (int) $this->_get(self::TOTAL_COUNT);
     }
 
     /**
      * @inheritdoc
      */
-    public function setLimit(int $limit): ProductSyncResponseInterface
+    public function setTotalCount(int $totalCount): ProductSyncResponseInterface
     {
-        return $this->setData(self::LIMIT, $limit);
+        return $this->setData(self::TOTAL_COUNT, $totalCount);
     }
 
     /**
      * @inheritdoc
      */
-    public function getOffset(): int
+    public function getTotalPages(): int
     {
-        return (int) $this->_get(self::OFFSET);
+        return (int) $this->_get(self::TOTAL_PAGES);
     }
 
     /**
      * @inheritdoc
      */
-    public function setOffset(int $offset): ProductSyncResponseInterface
+    public function setTotalPages(int $totalPages): ProductSyncResponseInterface
     {
-        return $this->setData(self::OFFSET, $offset);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getHasMore(): bool
-    {
-        return (bool) $this->_get(self::HAS_MORE);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setHasMore(bool $hasMore): ProductSyncResponseInterface
-    {
-        return $this->setData(self::HAS_MORE, $hasMore);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getNextOffset(): ?int
-    {
-        $nextOffset = $this->_get(self::NEXT_OFFSET);
-
-        return $nextOffset !== null ? (int) $nextOffset : null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setNextOffset(?int $nextOffset): ProductSyncResponseInterface
-    {
-        return $this->setData(self::NEXT_OFFSET, $nextOffset);
+        return $this->setData(self::TOTAL_PAGES, $totalPages);
     }
 
     /**

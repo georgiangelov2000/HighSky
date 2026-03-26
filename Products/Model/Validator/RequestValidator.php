@@ -16,112 +16,48 @@ class RequestValidator implements RequestValidatorInterface
     ) {}
 
     public function validate(
-        ?string $status = null,
-        ?string $from = null,
-        ?string $to = null,
-        $limit = null,
-        $offset = null
+        $perPage = null,
+        ?string $updateAfter = null
     ): array {
-        $normalizedStatus = strtolower(trim((string) $status));
-        $this->validateStatus($normalizedStatus);
-
-        $normalizedLimit = $this->normalizeLimit($limit);
-        $normalizedOffset = $this->normalizeOffset($offset);
-        [$normalizedFrom, $normalizedTo] = $this->normalizeDates($from, $to);
-
         return [
-            'status' => $normalizedStatus,
-            'from' => $normalizedFrom,
-            'to' => $normalizedTo,
-            'limit' => $normalizedLimit,
-            'offset' => $normalizedOffset,
+            'per_page' => $this->normalizePerPage($perPage),
+            'update_after' => $this->normalizeUpdateAfter($updateAfter),
+            'current_page' => SyncConfig::DEFAULT_PAGE,
         ];
     }
 
-    private function validateStatus(string $status): void
+    private function normalizePerPage($perPage): int
     {
-        if (!in_array($status, [SyncConfig::STATUS_NEW, SyncConfig::STATUS_OLD], true)) {
+        if ($perPage === null || $perPage === '') {
+            return SyncConfig::DEFAULT_PER_PAGE;
+        }
+
+        if (filter_var($perPage, FILTER_VALIDATE_INT) === false) {
             throw new InvalidSyncRequestException(
-                new Phrase('The "status" parameter is required and must be either "new" or "old".')
+                new Phrase('The "per_page" parameter must be an integer.')
             );
         }
+
+        $normalizedPerPage = (int) $perPage;
+        if ($normalizedPerPage < SyncConfig::MIN_PER_PAGE) {
+            throw new InvalidSyncRequestException(
+                new Phrase(
+                    'The "per_page" parameter must be greater than or equal to %1.',
+                    [SyncConfig::MIN_PER_PAGE]
+                )
+            );
+        }
+
+        return min($normalizedPerPage, SyncConfig::MAX_PER_PAGE);
     }
 
-    private function normalizeLimit($limit): int
+    private function normalizeUpdateAfter(?string $updateAfter): ?string
     {
-        if ($limit === null || $limit === '') {
-            return SyncConfig::DEFAULT_LIMIT;
+        if ($updateAfter === null || trim($updateAfter) === '') {
+            return null;
         }
 
-        if (filter_var($limit, FILTER_VALIDATE_INT) === false) {
-            throw new InvalidSyncRequestException(
-                new Phrase('The "limit" parameter must be an integer.')
-            );
-        }
-
-        $normalizedLimit = (int) $limit;
-        if ($normalizedLimit < SyncConfig::MIN_LIMIT) {
-            throw new InvalidSyncRequestException(
-                new Phrase('The "limit" parameter must be greater than or equal to %1.', [SyncConfig::MIN_LIMIT])
-            );
-        }
-
-        return min($normalizedLimit, SyncConfig::MAX_LIMIT);
-    }
-
-    private function normalizeOffset($offset): int
-    {
-        if ($offset === null || $offset === '') {
-            return SyncConfig::DEFAULT_OFFSET;
-        }
-
-        if (filter_var($offset, FILTER_VALIDATE_INT) === false) {
-            throw new InvalidSyncRequestException(
-                new Phrase('The "offset" parameter must be an integer.')
-            );
-        }
-
-        $normalizedOffset = (int) $offset;
-        if ($normalizedOffset < SyncConfig::MIN_OFFSET) {
-            throw new InvalidSyncRequestException(
-                new Phrase('The "offset" parameter must be greater than or equal to %1.', [SyncConfig::MIN_OFFSET])
-            );
-        }
-
-        return $normalizedOffset;
-    }
-
-    /**
-     * @return array{0:?string,1:?string}
-     */
-    private function normalizeDates(?string $from, ?string $to): array
-    {
-        $hasFrom = $from !== null && trim($from) !== '';
-        $hasTo = $to !== null && trim($to) !== '';
-
-        if ($hasFrom xor $hasTo) {
-            throw new InvalidSyncRequestException(
-                new Phrase('Both "from" and "to" must be provided together, or omit both parameters.')
-            );
-        }
-
-        if (!$hasFrom && !$hasTo) {
-            return [null, null];
-        }
-
-        $normalizedFrom = $this->parseDate((string) $from, 'from');
-        $normalizedTo = $this->parseDate((string) $to, 'to');
-
-        if ($normalizedFrom >= $normalizedTo) {
-            throw new InvalidSyncRequestException(
-                new Phrase('The "from" parameter must be earlier than "to".')
-            );
-        }
-
-        return [
-            $normalizedFrom->setTime(0, 0, 0)->format(SyncConfig::DATE_FORMAT),
-            $normalizedTo->setTime(23, 59, 59)->format(SyncConfig::DATE_FORMAT),
-        ];
+        return $this->parseDate($updateAfter, 'update_after')->format(SyncConfig::DATE_FORMAT);
     }
 
     private function parseDate(string $value, string $fieldName): \DateTimeImmutable
