@@ -67,26 +67,26 @@ interface ProductSyncItemInterface
     public function setName(string $name): self;
 
     /**
-     * @return float|null
+     * @return string|null
      */
-    public function getPrice(): ?float;
+    public function getPrice(): ?string;
 
     /**
-     * @param float|null $price
+     * @param string|null $price
      * @return $this
      */
-    public function setPrice(?float $price): self;
+    public function setPrice(?string $price): self;
 
     /**
-     * @return float|null
+     * @return string|null
      */
-    public function getSpecialPrice(): ?float;
+    public function getSpecialPrice(): ?string;
 
     /**
-     * @param float|null $specialPrice
+     * @param string|null $specialPrice
      * @return $this
      */
-    public function setSpecialPrice(?float $specialPrice): self;
+    public function setSpecialPrice(?string $specialPrice): self;
 
     /**
      * @return string|null
@@ -111,15 +111,15 @@ interface ProductSyncItemInterface
     public function setSpecialToDate(?string $specialToDate): self;
 
     /**
-     * @return float|null
+     * @return string|null
      */
-    public function getCost(): ?float;
+    public function getCost(): ?string;
 
     /**
-     * @param float|null $cost
+     * @param string|null $cost
      * @return $this
      */
-    public function setCost(?float $cost): self;
+    public function setCost(?string $cost): self;
 
     /**
      * @return int|null

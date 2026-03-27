@@ -43,11 +43,11 @@ class ProductMapper implements ProductMapperInterface
         $item->setId((int) $product->getId());
         $item->setSku((string) $product->getSku());
         $item->setName((string) $product->getName());
-        $item->setPrice($product->getPrice() !== null ? (float) $product->getPrice() : null);
-        $item->setSpecialPrice($product->getData('special_price') !== null ? (float) $product->getData('special_price') : null);
+        $item->setPrice($this->formatDecimal($product->getPrice()));
+        $item->setSpecialPrice($this->formatDecimal($product->getData('special_price')));
         $item->setSpecialFromDate($product->getData('special_from_date') ?: null);
         $item->setSpecialToDate($product->getData('special_to_date') ?: null);
-        $item->setCost($product->getData('cost') !== null ? (float) $product->getData('cost') : null);
+        $item->setCost($this->formatDecimal($product->getData('cost')));
         $item->setTaxClassId($product->getData('tax_class_id') !== null ? (int) $product->getData('tax_class_id') : null);
         $item->setCategoryNames($this->getCategoryNames($categoryIds));
         $item->setCreatedAt((string) $product->getData('created_at'));
@@ -135,5 +135,14 @@ class ProductMapper implements ProductMapperInterface
         }
 
         return array_values($names);
+    }
+
+    private function formatDecimal(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return number_format((float) $value, 2, '.', '');
     }
 }

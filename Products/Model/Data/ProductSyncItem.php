@@ -59,17 +59,17 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     /**
      * @inheritdoc
      */
-    public function getPrice(): ?float
+    public function getPrice(): ?string
     {
         $price = $this->_get(self::PRICE);
 
-        return $price !== null ? (float) $price : null;
+        return $price !== null ? (string) $price : null;
     }
 
     /**
      * @inheritdoc
      */
-    public function setPrice(?float $price): ProductSyncItemInterface
+    public function setPrice(?string $price): ProductSyncItemInterface
     {
         return $this->setData(self::PRICE, $price);
     }
@@ -77,17 +77,17 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     /**
      * @inheritdoc
      */
-    public function getSpecialPrice(): ?float
+    public function getSpecialPrice(): ?string
     {
         $specialPrice = $this->_get(self::SPECIAL_PRICE);
 
-        return $specialPrice !== null ? (float) $specialPrice : null;
+        return $specialPrice !== null ? (string) $specialPrice : null;
     }
 
     /**
      * @inheritdoc
      */
-    public function setSpecialPrice(?float $specialPrice): ProductSyncItemInterface
+    public function setSpecialPrice(?string $specialPrice): ProductSyncItemInterface
     {
         return $this->setData(self::SPECIAL_PRICE, $specialPrice);
     }
@@ -131,17 +131,17 @@ class ProductSyncItem extends AbstractSimpleObject implements ProductSyncItemInt
     /**
      * @inheritdoc
      */
-    public function getCost(): ?float
+    public function getCost(): ?string
     {
         $cost = $this->_get(self::COST);
 
-        return $cost !== null ? (float) $cost : null;
+        return $cost !== null ? (string) $cost : null;
     }
 
     /**
      * @inheritdoc
      */
-    public function setCost(?float $cost): ProductSyncItemInterface
+    public function setCost(?string $cost): ProductSyncItemInterface
     {
         return $this->setData(self::COST, $cost);
     }
