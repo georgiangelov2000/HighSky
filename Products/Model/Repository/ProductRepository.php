@@ -46,10 +46,6 @@ class ProductRepository implements ProductRepositoryInterface
             'visibility',
             'image',
         ]);
-        $extraAttributeCodes = $this->apiColumnsConfig->getExtraAttributeCodes();
-        if ($extraAttributeCodes !== []) {
-            $collection->addAttributeToSelect($extraAttributeCodes);
-        }
 
         if ($updateAfter !== null) {
             $connection = $collection->getConnection();

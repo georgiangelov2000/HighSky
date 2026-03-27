@@ -9,7 +9,6 @@ use Magento\Store\Model\ScopeInterface;
 class ApiColumnsConfig
 {
     private const XML_PATH_ENABLED_COLUMNS = 'highsky_products/api_columns/enabled_columns';
-    private const XML_PATH_EXTRA_ATTRIBUTE_CODES = 'highsky_products/api_columns/extra_attribute_codes';
 
     /**
      * @param array<string, string> $defaultColumns
@@ -36,28 +35,6 @@ class ApiColumnsConfig
         }
 
         return array_values(array_unique($columns));
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getExtraAttributeCodes(?int $storeId = null): array
-    {
-        $configured = (string) $this->scopeConfig->getValue(
-            self::XML_PATH_EXTRA_ATTRIBUTE_CODES,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        $codes = [];
-        foreach ($this->explodeCsv($configured) as $code) {
-            $normalized = strtolower(trim($code));
-            if ($normalized !== '' && preg_match('/^[a-z][a-z0-9_]*$/', $normalized)) {
-                $codes[] = $normalized;
-            }
-        }
-
-        return array_values(array_unique($codes));
     }
 
     /**

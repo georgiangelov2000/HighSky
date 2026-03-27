@@ -13,10 +13,6 @@
                     <comment>Select which columns should be included in the product sync API response.</comment>
                     <source_model>HighSky\Products\Model\Config\Source\AvailableColumns</source_model>
                 </field>
-                <field id="extra_attribute_codes" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Extra Attribute Codes</label>
-                    <comment>Add comma-separated Magento product attribute codes to expose as extra API columns.</comment>
-                </field>
             </group>
         </section>
     </system>
