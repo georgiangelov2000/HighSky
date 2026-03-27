@@ -189,23 +189,53 @@ curl -H "Accept: application/json" "https://magento.test/rest/V1/highsky/sync/pr
 
 ## Installation
 
-Place the module in:
+Install the module in your Magento project under:
 
 ```text
 app/code/HighSky/Products
 ```
 
-Then run:
+From the Magento root, enable the module and apply its setup changes:
 
 ```bash
+php bin/magento module:enable HighSky_Products
 php bin/magento setup:upgrade
 php bin/magento cache:flush
 ```
 
-If needed, also run:
+If your project is in production mode or needs regenerated code, also run:
 
 ```bash
 php bin/magento setup:di:compile
+php bin/magento setup:static-content:deploy -f
+```
+
+### Setup In A Magento Project Using This Docker Repo
+
+If you are using the `markshust/docker-magento` setup in this repository, the Magento root is inside `compose/src`.
+
+From the repository root:
+
+```bash
+cd compose
+bin/start
+bin/magento module:enable HighSky_Products
+bin/magento setup:upgrade
+bin/magento cache:flush
+```
+
+If you copied or updated the module files from the host and need to sync them into the running container, run:
+
+```bash
+cd compose
+bin/copytocontainer app/code/HighSky/Products
+```
+
+You can confirm the module is active with:
+
+```bash
+cd compose
+bin/magento module:status HighSky_Products
 ```
 
 ## Module Structure
