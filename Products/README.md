@@ -209,35 +209,6 @@ If your project is in production mode or needs regenerated code, also run:
 php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy -f
 ```
-
-### Setup In A Magento Project Using This Docker Repo
-
-If you are using the `markshust/docker-magento` setup in this repository, the Magento root is inside `compose/src`.
-
-From the repository root:
-
-```bash
-cd compose
-bin/start
-bin/magento module:enable HighSky_Products
-bin/magento setup:upgrade
-bin/magento cache:flush
-```
-
-If you copied or updated the module files from the host and need to sync them into the running container, run:
-
-```bash
-cd compose
-bin/copytocontainer app/code/HighSky/Products
-```
-
-You can confirm the module is active with:
-
-```bash
-cd compose
-bin/magento module:status HighSky_Products
-```
-
 ## Module Structure
 
 ```text
