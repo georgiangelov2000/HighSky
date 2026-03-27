@@ -17,13 +17,11 @@ class ResponseBuilder implements ResponseBuilderInterface
         ?string $updateAfter,
         array $products,
         int $perPage,
-        int $currentPage,
         int $totalCount
     ): ProductSyncResponseInterface {
         $response = $this->productSyncResponseFactory->create();
         $response->setUpdateAfter($updateAfter);
         $response->setPerPage($perPage);
-        $response->setCurrentPage($currentPage);
         $response->setTotalCount($totalCount);
         $response->setTotalPages($perPage > 0 ? (int) ceil($totalCount / $perPage) : 0);
         $response->setProducts($products);

@@ -13,7 +13,6 @@ interface ResponseBuilderInterface
      * @param string|null $updateAfter
      * @param \HighSky\Products\Api\Data\ProductSyncItemInterface[] $products
      * @param int $perPage
-     * @param int $currentPage
      * @param int $totalCount
      * @return ProductSyncResponseInterface
      */
@@ -21,7 +20,6 @@ interface ResponseBuilderInterface
         ?string $updateAfter,
         array $products,
         int $perPage,
-        int $currentPage,
         int $totalCount
     ): ProductSyncResponseInterface;
 }

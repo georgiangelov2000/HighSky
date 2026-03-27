@@ -40,7 +40,6 @@ class ProductSyncService implements ProductSyncServiceInterface
             $validated['update_after'],
             $products,
             $validated['per_page'],
-            $validated['current_page'],
             $result['total_count']
         );
     }

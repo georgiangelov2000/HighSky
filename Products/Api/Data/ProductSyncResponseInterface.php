@@ -7,7 +7,6 @@ interface ProductSyncResponseInterface
 {
     public const UPDATE_AFTER = 'update_after';
     public const PER_PAGE = 'per_page';
-    public const CURRENT_PAGE = 'current_page';
     public const TOTAL_COUNT = 'total_count';
     public const TOTAL_PAGES = 'total_pages';
     public const PRODUCTS = 'products';
@@ -33,17 +32,6 @@ interface ProductSyncResponseInterface
      * @return $this
      */
     public function setPerPage(int $perPage): self;
-
-    /**
-     * @return int
-     */
-    public function getCurrentPage(): int;
-
-    /**
-     * @param int $currentPage
-     * @return $this
-     */
-    public function setCurrentPage(int $currentPage): self;
 
     /**
      * @return int

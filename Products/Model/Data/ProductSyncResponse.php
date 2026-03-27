@@ -45,22 +45,6 @@ class ProductSyncResponse extends AbstractSimpleObject implements ProductSyncRes
     /**
      * @inheritdoc
      */
-    public function getCurrentPage(): int
-    {
-        return (int) $this->_get(self::CURRENT_PAGE);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setCurrentPage(int $currentPage): ProductSyncResponseInterface
-    {
-        return $this->setData(self::CURRENT_PAGE, $currentPage);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getTotalCount(): int
     {
         return (int) $this->_get(self::TOTAL_COUNT);
