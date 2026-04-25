@@ -10,7 +10,10 @@
                 <label>General</label>
                 <field id="module_enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Module Enabled</label>
-                    <comment>Master feature flag for all HighSky modules and endpoints.</comment>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> — all SkyCommerce modules are active. Tracking endpoints, product synchronisation, and the storefront widget are governed by their own flags.<br/>
+                        <strong>No</strong> — every SkyCommerce endpoint returns <code>403 Forbidden</code> and the storefront widget is suppressed, regardless of any other setting.
+                    ]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
@@ -30,7 +33,7 @@
                 <field id="auth_required" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Tracking Auth Required</label>
                     <comment><![CDATA[
-                        <strong>Yes</strong> — every request to a tracking or product sync endpoint must include the
+                        <strong>Yes</strong> — every request to a tracking or product synchronisation endpoint must include the
                         <code>X-SkyCommerce-Auth</code> header with the configured token.
                         A missing or invalid header returns <code>401 Unauthorized</code>.<br/>
                         <strong>No</strong> — endpoints accept requests without authentication.

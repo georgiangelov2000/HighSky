@@ -6,8 +6,11 @@
             <group id="product_sync" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Product</label>
                 <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Product Sync Enabled</label>
-                    <comment>Controls availability of the HighSky product synchronization endpoint.</comment>
+                    <label>Product Synchronisation Enabled</label>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> — the <code>/rest/V1/highsky/sync/products</code> endpoint is active and returns the product catalogue according to the selected API columns.<br/>
+                        <strong>No</strong> — the endpoint returns <code>403 Forbidden</code>. No product data is exposed regardless of authentication state.
+                    ]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
@@ -15,7 +18,7 @@
                 <label>Product API Columns</label>
                 <field id="enabled_columns" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled Columns</label>
-                    <comment>Select which columns should be included in the product sync API response.</comment>
+                    <comment>Select which columns should be included in the product synchronisation API response.</comment>
                     <source_model>HighSky\Products\Model\Config\ProductSync\Source\AvailableColumns</source_model>
                 </field>
             </group>

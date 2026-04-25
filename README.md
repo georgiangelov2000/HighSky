@@ -1,13 +1,13 @@
 # HighSky Magento Modules
 
-Custom Magento 2 modules under `src/app/code/HighSky` that expose a product sync API and a set of tracking APIs consumed by the HighSky platform.
+Custom Magento 2 modules under `src/app/code/HighSky` that expose a product synchronisation API and a set of tracking APIs consumed by the HighSky platform.
 
 ## Module Layout
 
 ```text
 src/app/code/HighSky/
 ├── Shared/           shared config, auth, DTOs, validation, setup
-├── Products/         product sync API
+├── Products/         product synchronisation API
 ├── TrackingUsers/    user tracking API
 ├── TrackingOrders/   order tracking API
 ├── TrackingCheckout/ checkout tracking API
@@ -30,7 +30,7 @@ src/app/code/HighSky/
 **`HighSky/Products`**
 - `GET /rest/V1/highsky/sync/products` — full product catalog export
 - Product sync contracts, DTOs, repository, mapper, service, validator
-- `ProductSyncAvailabilityValidator` — gates endpoint behind module + product sync flags
+- `ProductSyncAvailabilityValidator` — gates endpoint behind module + product synchronisation flags
 
 **`HighSky/TrackingUsers`**
 - `GET /rest/V1/highsky/tracking/users/:userId` — customer profile + order history
@@ -71,7 +71,7 @@ Stores > Configuration > Catalog > HighSky Products
 |-------|---------|
 | General | Master enable flag |
 | Product | Product sync enable flag |
-| Product API Columns | Column selection for the product sync response |
+| Product API Columns | Column selection for the product synchronisation response |
 | Settings | Tracking feature flags and order history limit |
 | API Reference | Read-only endpoint reference table |
 | Authentication | Auth token management |

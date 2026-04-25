@@ -27,7 +27,7 @@ class ProductSyncAvailabilityValidator
 
         if (!$this->productSyncConfig->isEnabled()) {
             throw new WebapiException(
-                new Phrase('The HighSky product sync API is disabled.'),
+                new Phrase('The HighSky product synchronisation API is disabled.'),
                 0,
                 WebapiException::HTTP_FORBIDDEN
             );

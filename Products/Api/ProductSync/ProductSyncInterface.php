@@ -8,7 +8,7 @@ use HighSky\Products\Api\ProductSync\Data\ProductSyncResponseInterface;
 interface ProductSyncInterface
 {
     /**
-     * REST entry point for product synchronization.
+     * REST entry point for product synchronisation.
      *
      * @param int|string|null $perPage Number of records to return per page
      * @param string|null $updateAfter Datetime in Y-m-d H:i:s format
