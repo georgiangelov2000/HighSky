@@ -13,6 +13,20 @@
                     ]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="default_per_page" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Products Per Page</label>
+                    <comment><![CDATA[
+                        Number of products returned when the API caller does not provide a <code>per_page</code> query parameter. Default is <strong>200</strong>.
+                    ]]></comment>
+                    <validate>required-entry validate-number validate-greater-than-zero</validate>
+                </field>
+                <field id="max_per_page" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Maximum Products Per Page</label>
+                    <comment><![CDATA[
+                        Hard ceiling for the <code>per_page</code> query parameter. Requests above this value are capped instead of loading larger datasets. Default is <strong>200</strong>.
+                    ]]></comment>
+                    <validate>required-entry validate-number validate-greater-than-zero</validate>
+                </field>
             </group>
             <group id="api_columns" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Product API Columns</label>

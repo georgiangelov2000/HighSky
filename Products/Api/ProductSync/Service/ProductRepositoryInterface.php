@@ -11,7 +11,8 @@ interface ProductRepositoryInterface
      * @param string|null $updateAfter
      * @param int $perPage
      * @param int $currentPage
+     * @param string[] $enabledColumns
      * @return array{items: array, total_count: int}
      */
-    public function getList(?string $updateAfter, int $perPage, int $currentPage): array;
+    public function getList(?string $updateAfter, int $perPage, int $currentPage, array $enabledColumns): array;
 }

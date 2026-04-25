@@ -30,43 +30,127 @@ class ProductMapper implements ProductMapperInterface
         private readonly ConfigurableProductType $configurableProductType
     ) {}
 
-    public function map(Product $product): ProductSyncItemInterface
+    public function map(Product $product, array $enabledColumns): ProductSyncItemInterface
     {
-        return $this->mapProduct($product, true);
+        return $this->mapProduct($product, $enabledColumns, true);
     }
 
-    private function mapProduct(Product $product, bool $includeVariants): ProductSyncItemInterface
+    private function mapProduct(Product $product, array $enabledColumns, bool $includeVariants): ProductSyncItemInterface
     {
-        $stockItem = $this->stockRegistry->getStockItem((int) $product->getId());
-        $categoryIds = array_map('intval', $product->getCategoryIds() ?: []);
         $item = $this->productSyncItemFactory->create();
-        $item->setId((int) $product->getId());
-        $item->setSku((string) $product->getSku());
-        $item->setName((string) $product->getName());
-        $item->setPrice($this->formatDecimal($product->getPrice()));
-        $item->setSpecialPrice($this->formatDecimal($product->getData('special_price')));
-        $item->setSpecialFromDate($product->getData('special_from_date') ?: null);
-        $item->setSpecialToDate($product->getData('special_to_date') ?: null);
-        $item->setCost($this->formatDecimal($product->getData('cost')));
-        $item->setTaxClassId($product->getData('tax_class_id') !== null ? (int) $product->getData('tax_class_id') : null);
-        $item->setCategoryNames($this->getCategoryNames($categoryIds));
-        $item->setCreatedAt((string) $product->getData('created_at'));
-        $item->setUpdatedAt((string) $product->getData('updated_at'));
-        $item->setStatus($this->getStatusLabel((int) $product->getStatus()));
-        $item->setVisibility($this->getVisibilityLabel((int) $product->getVisibility()));
-        $item->setImageUrl($this->getImageUrl($product));
-        $item->setQty($stockItem && $stockItem->getQty() !== null ? (float) $stockItem->getQty() : null);
-        $item->setIsInStock($stockItem ? (bool) $stockItem->getIsInStock() : false);
-        $item->setManageStock($stockItem ? (bool) $stockItem->getManageStock() : false);
-        $item->setUseConfigManageStock($stockItem ? (bool) $stockItem->getUseConfigManageStock() : false);
-        $item->setBackorders($stockItem ? (int) $stockItem->getBackorders() : 0);
-        $item->setMinQty($stockItem && $stockItem->getMinQty() !== null ? (float) $stockItem->getMinQty() : null);
-        $item->setMinSaleQty($stockItem && $stockItem->getMinSaleQty() !== null ? (float) $stockItem->getMinSaleQty() : null);
-        $item->setMaxSaleQty($stockItem && $stockItem->getMaxSaleQty() !== null ? (float) $stockItem->getMaxSaleQty() : null);
-        $item->setNotifyStockQty($stockItem && $stockItem->getNotifyStockQty() !== null ? (float) $stockItem->getNotifyStockQty() : null);
-        $item->setEnableQtyIncrements($stockItem ? (bool) $stockItem->getEnableQtyIncrements() : false);
-        $item->setQtyIncrements($stockItem && $stockItem->getQtyIncrements() !== null ? (float) $stockItem->getQtyIncrements() : null);
-        $item->setVariants($includeVariants ? $this->getVariants($product) : []);
+        $enabledColumns = array_fill_keys($enabledColumns, true);
+        $stockItem = $this->requiresStockData($enabledColumns)
+            ? $this->stockRegistry->getStockItem((int) $product->getId())
+            : null;
+
+        if (isset($enabledColumns['id'])) {
+            $item->setId((int) $product->getId());
+        }
+
+        if (isset($enabledColumns['sku'])) {
+            $item->setSku((string) $product->getSku());
+        }
+
+        if (isset($enabledColumns['name'])) {
+            $item->setName((string) $product->getName());
+        }
+
+        if (isset($enabledColumns['price'])) {
+            $item->setPrice($this->formatDecimal($product->getPrice()));
+        }
+
+        if (isset($enabledColumns['special_price'])) {
+            $item->setSpecialPrice($this->formatDecimal($product->getData('special_price')));
+        }
+
+        if (isset($enabledColumns['special_from_date'])) {
+            $item->setSpecialFromDate($product->getData('special_from_date') ?: null);
+        }
+
+        if (isset($enabledColumns['special_to_date'])) {
+            $item->setSpecialToDate($product->getData('special_to_date') ?: null);
+        }
+
+        if (isset($enabledColumns['cost'])) {
+            $item->setCost($this->formatDecimal($product->getData('cost')));
+        }
+
+        if (isset($enabledColumns['tax_class_id'])) {
+            $item->setTaxClassId($product->getData('tax_class_id') !== null ? (int) $product->getData('tax_class_id') : null);
+        }
+
+        if (isset($enabledColumns['category_names'])) {
+            $categoryIds = array_map('intval', $product->getCategoryIds() ?: []);
+            $item->setCategoryNames($this->getCategoryNames($categoryIds));
+        }
+
+        if (isset($enabledColumns['created_at'])) {
+            $item->setCreatedAt((string) $product->getData('created_at'));
+        }
+
+        if (isset($enabledColumns['updated_at'])) {
+            $item->setUpdatedAt((string) $product->getData('updated_at'));
+        }
+
+        if (isset($enabledColumns['status'])) {
+            $item->setStatus($this->getStatusLabel((int) $product->getStatus()));
+        }
+
+        if (isset($enabledColumns['visibility'])) {
+            $item->setVisibility($this->getVisibilityLabel((int) $product->getVisibility()));
+        }
+
+        if (isset($enabledColumns['image_url'])) {
+            $item->setImageUrl($this->getImageUrl($product));
+        }
+
+        if (isset($enabledColumns['qty'])) {
+            $item->setQty($stockItem && $stockItem->getQty() !== null ? (float) $stockItem->getQty() : null);
+        }
+
+        if (isset($enabledColumns['is_in_stock'])) {
+            $item->setIsInStock($stockItem ? (bool) $stockItem->getIsInStock() : false);
+        }
+
+        if (isset($enabledColumns['manage_stock'])) {
+            $item->setManageStock($stockItem ? (bool) $stockItem->getManageStock() : false);
+        }
+
+        if (isset($enabledColumns['use_config_manage_stock'])) {
+            $item->setUseConfigManageStock($stockItem ? (bool) $stockItem->getUseConfigManageStock() : false);
+        }
+
+        if (isset($enabledColumns['backorders'])) {
+            $item->setBackorders($stockItem ? (int) $stockItem->getBackorders() : 0);
+        }
+
+        if (isset($enabledColumns['min_qty'])) {
+            $item->setMinQty($stockItem && $stockItem->getMinQty() !== null ? (float) $stockItem->getMinQty() : null);
+        }
+
+        if (isset($enabledColumns['min_sale_qty'])) {
+            $item->setMinSaleQty($stockItem && $stockItem->getMinSaleQty() !== null ? (float) $stockItem->getMinSaleQty() : null);
+        }
+
+        if (isset($enabledColumns['max_sale_qty'])) {
+            $item->setMaxSaleQty($stockItem && $stockItem->getMaxSaleQty() !== null ? (float) $stockItem->getMaxSaleQty() : null);
+        }
+
+        if (isset($enabledColumns['notify_stock_qty'])) {
+            $item->setNotifyStockQty($stockItem && $stockItem->getNotifyStockQty() !== null ? (float) $stockItem->getNotifyStockQty() : null);
+        }
+
+        if (isset($enabledColumns['enable_qty_increments'])) {
+            $item->setEnableQtyIncrements($stockItem ? (bool) $stockItem->getEnableQtyIncrements() : false);
+        }
+
+        if (isset($enabledColumns['qty_increments'])) {
+            $item->setQtyIncrements($stockItem && $stockItem->getQtyIncrements() !== null ? (float) $stockItem->getQtyIncrements() : null);
+        }
+
+        if (isset($enabledColumns['variants'])) {
+            $item->setVariants($includeVariants ? $this->getVariants($product, array_keys($enabledColumns)) : []);
+        }
 
         return $item;
     }
@@ -74,7 +158,7 @@ class ProductMapper implements ProductMapperInterface
     /**
      * @return ProductSyncItemInterface[]
      */
-    private function getVariants(Product $product): array
+    private function getVariants(Product $product, array $enabledColumns): array
     {
         if ($product->getTypeId() !== ConfigurableProductType::TYPE_CODE) {
             return [];
@@ -82,10 +166,36 @@ class ProductMapper implements ProductMapperInterface
 
         $variants = [];
         foreach ($this->configurableProductType->getUsedProducts($product) as $variantProduct) {
-            $variants[] = $this->mapProduct($variantProduct, false);
+            $variants[] = $this->mapProduct($variantProduct, $enabledColumns, false);
         }
 
         return $variants;
+    }
+
+    /**
+     * @param array<string, bool> $enabledColumns
+     */
+    private function requiresStockData(array $enabledColumns): bool
+    {
+        foreach ([
+            'qty',
+            'is_in_stock',
+            'manage_stock',
+            'use_config_manage_stock',
+            'backorders',
+            'min_qty',
+            'min_sale_qty',
+            'max_sale_qty',
+            'notify_stock_qty',
+            'enable_qty_increments',
+            'qty_increments',
+        ] as $stockColumn) {
+            if (isset($enabledColumns[$stockColumn])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function getStatusLabel(int $status): string

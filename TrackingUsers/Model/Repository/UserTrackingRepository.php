@@ -28,7 +28,13 @@ class UserTrackingRepository implements UserTrackingRepositoryInterface
     public function getPreviousOrdersByUserId(int $userId, int $limit): array
     {
         $collection = $this->orderCollectionFactory->create();
-        $collection->addFieldToSelect('*');
+        $collection->addFieldToSelect([
+            'entity_id',
+            'increment_id',
+            'status',
+            'created_at',
+            'customer_id',
+        ]);
         $collection->addFieldToFilter('customer_id', $userId);
         $collection->setOrder('created_at', 'DESC');
         $collection->setPageSize($limit);

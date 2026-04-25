@@ -12,7 +12,8 @@ interface ProductMapperInterface
      * Convert a Magento product entity into the sync payload shape.
      *
      * @param Product $product
+     * @param string[] $enabledColumns
      * @return ProductSyncItemInterface
      */
-    public function map(Product $product): ProductSyncItemInterface;
+    public function map(Product $product, array $enabledColumns): ProductSyncItemInterface;
 }

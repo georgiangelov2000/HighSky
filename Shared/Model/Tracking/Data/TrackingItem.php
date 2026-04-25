@@ -49,4 +49,16 @@ class TrackingItem extends AbstractSimpleObject implements TrackingItemInterface
     {
         return $this->setData(self::QTY, $qty);
     }
+
+    public function getImageUrl(): ?string
+    {
+        $imageUrl = $this->_get(self::IMAGE_URL);
+
+        return $imageUrl !== null ? (string) $imageUrl : null;
+    }
+
+    public function setImageUrl(?string $imageUrl): TrackingItemInterface
+    {
+        return $this->setData(self::IMAGE_URL, $imageUrl);
+    }
 }

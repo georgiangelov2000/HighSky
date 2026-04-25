@@ -5,6 +5,7 @@ namespace HighSky\Products\Model\ProductSync\Validator;
 
 use HighSky\Products\Api\ProductSync\Validator\RequestValidatorInterface;
 use HighSky\Products\Exception\ProductSync\InvalidSyncRequestException;
+use HighSky\Products\Model\Config\ProductSync\ProductSyncConfig;
 use HighSky\Products\Model\Config\ProductSync\SyncConfig;
 use Magento\Framework\Phrase;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
@@ -12,7 +13,8 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 class RequestValidator implements RequestValidatorInterface
 {
     public function __construct(
-        private readonly TimezoneInterface $timezone
+        private readonly TimezoneInterface $timezone,
+        private readonly ProductSyncConfig $productSyncConfig
     ) {}
 
     public function validate(
@@ -29,7 +31,7 @@ class RequestValidator implements RequestValidatorInterface
     private function normalizePerPage($perPage): int
     {
         if ($perPage === null || $perPage === '') {
-            return SyncConfig::DEFAULT_PER_PAGE;
+            return $this->productSyncConfig->getDefaultPerPage();
         }
 
         if (filter_var($perPage, FILTER_VALIDATE_INT) === false) {
@@ -48,7 +50,7 @@ class RequestValidator implements RequestValidatorInterface
             );
         }
 
-        return min($normalizedPerPage, SyncConfig::MAX_PER_PAGE);
+        return min($normalizedPerPage, $this->productSyncConfig->getMaxPerPage());
     }
 
     private function normalizeUpdateAfter(?string $updateAfter): ?string

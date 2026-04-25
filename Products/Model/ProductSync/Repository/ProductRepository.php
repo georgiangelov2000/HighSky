@@ -4,20 +4,18 @@ declare(strict_types=1);
 namespace HighSky\Products\Model\ProductSync\Repository;
 
 use HighSky\Products\Api\ProductSync\Service\ProductRepositoryInterface;
-use HighSky\Products\Model\Config\ProductSync\ApiColumnsConfig;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 
 class ProductRepository implements ProductRepositoryInterface
 {
     public function __construct(
-        private readonly CollectionFactory $productCollectionFactory,
-        private readonly ApiColumnsConfig $apiColumnsConfig
+        private readonly CollectionFactory $productCollectionFactory
     ) {}
 
-    public function getList(?string $updateAfter, int $perPage, int $currentPage): array
+    public function getList(?string $updateAfter, int $perPage, int $currentPage, array $enabledColumns): array
     {
-        $collection = $this->buildCollection($updateAfter);
+        $collection = $this->buildCollection($updateAfter, $enabledColumns);
         $totalCount = (int) $collection->getSize();
 
         $collection->setPageSize($perPage);
@@ -31,21 +29,19 @@ class ProductRepository implements ProductRepositoryInterface
         ];
     }
 
-    private function buildCollection(?string $updateAfter): Collection
+    private function buildCollection(?string $updateAfter, array $enabledColumns): Collection
     {
         $collection = $this->productCollectionFactory->create();
-        $collection->addAttributeToSelect([
-            'name',
-            'price',
-            'special_price',
-            'special_from_date',
-            'special_to_date',
-            'cost',
-            'status',
-            'tax_class_id',
-            'visibility',
-            'image',
-        ]);
+        $attributeCodes = [];
+        foreach ($enabledColumns as $enabledColumn) {
+            foreach ($this->getAttributeCodesForColumn($enabledColumn) as $attributeCode) {
+                $attributeCodes[$attributeCode] = $attributeCode;
+            }
+        }
+
+        if ($attributeCodes !== []) {
+            $collection->addAttributeToSelect(array_values($attributeCodes));
+        }
 
         if ($updateAfter !== null) {
             $connection = $collection->getConnection();
@@ -55,5 +51,26 @@ class ProductRepository implements ProductRepositoryInterface
         }
 
         return $collection;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getAttributeCodesForColumn(string $column): array
+    {
+        return match ($column) {
+            'name' => ['name'],
+            'price' => ['price'],
+            'special_price' => ['special_price'],
+            'special_from_date' => ['special_from_date'],
+            'special_to_date' => ['special_to_date'],
+            'cost' => ['cost'],
+            'tax_class_id' => ['tax_class_id'],
+            'status' => ['status'],
+            'visibility' => ['visibility'],
+            'image_url' => ['image'],
+            'variants' => ['name', 'price', 'special_price', 'special_from_date', 'special_to_date', 'cost', 'tax_class_id', 'status', 'visibility', 'image'],
+            default => [],
+        };
     }
 }

@@ -8,6 +8,9 @@ use HighSky\Shared\Model\Tracking\TrackingApiExceptionFactory;
 
 class TrackingRequestValidator implements TrackingRequestValidatorInterface
 {
+    private const MAX_ORDER_ID_LENGTH = 64;
+    private const MAX_SESSION_ID_LENGTH = 128;
+
     public function __construct(
         private readonly TrackingApiExceptionFactory $trackingApiExceptionFactory
     ) {}
@@ -18,6 +21,12 @@ class TrackingRequestValidator implements TrackingRequestValidatorInterface
         if ($normalizedValue === '') {
             throw $this->trackingApiExceptionFactory->badRequest(
                 'The "order_id" path parameter is required.'
+            );
+        }
+
+        if (mb_strlen($normalizedValue) > self::MAX_ORDER_ID_LENGTH) {
+            throw $this->trackingApiExceptionFactory->badRequest(
+                'The "order_id" path parameter is too long.'
             );
         }
 
@@ -49,6 +58,12 @@ class TrackingRequestValidator implements TrackingRequestValidatorInterface
         if ($normalizedValue === '') {
             throw $this->trackingApiExceptionFactory->badRequest(
                 'The "sessionId" path parameter is required.'
+            );
+        }
+
+        if (mb_strlen($normalizedValue) > self::MAX_SESSION_ID_LENGTH) {
+            throw $this->trackingApiExceptionFactory->badRequest(
+                'The "sessionId" path parameter is too long.'
             );
         }
 

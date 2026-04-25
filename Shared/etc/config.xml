@@ -5,6 +5,7 @@
         <highsky_products>
             <general>
                 <module_enabled>1</module_enabled>
+                <tenant_id></tenant_id>
             </general>
             <tracking>
                 <enabled>1</enabled>
@@ -12,6 +13,10 @@
                 <widget_enabled>0</widget_enabled>
                 <user_order_history_limit>20</user_order_history_limit>
             </tracking>
+            <security>
+                <rate_limit_enabled>1</rate_limit_enabled>
+                <requests_per_minute>60</requests_per_minute>
+            </security>
         </highsky_products>
     </default>
 </config>

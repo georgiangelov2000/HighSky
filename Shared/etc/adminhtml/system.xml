@@ -16,6 +16,12 @@
                     ]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="tenant_id" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tenant ID</label>
+                    <comment><![CDATA[
+                        Tenant identifier provided by SkyCommerce during onboarding. The storefront widget reads this value at runtime and passes it to <code>ChatWidget.init()</code>.
+                    ]]></comment>
+                </field>
             </group>
             <group id="tracking" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Settings</label>
@@ -74,6 +80,24 @@
                     <comment>Used in the X-SkyCommerce-Auth header for API authentication.</comment>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <frontend_model>HighSky\Shared\Block\Adminhtml\System\Config\AuthKeyField</frontend_model>
+                </field>
+            </group>
+            <group id="security" translate="label" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Security</label>
+                <field id="rate_limit_enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Rate Limiting Enabled</label>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> — the HighSky APIs enforce a per-endpoint, per-IP request cap to reduce abuse and accidental flooding.<br/>
+                        <strong>No</strong> — no in-module request throttling is applied.
+                    ]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="requests_per_minute" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Requests Per Minute</label>
+                    <comment><![CDATA[
+                        Maximum number of requests allowed per minute for each HighSky endpoint and client IP address. Default is <strong>60</strong>.
+                    ]]></comment>
+                    <validate>required-entry validate-number validate-greater-than-zero</validate>
                 </field>
             </group>
         </section>

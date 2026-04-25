@@ -15,6 +15,7 @@ class TrackingUser extends AbstractTrackingEndpoint implements TrackingUserInter
         \HighSky\Shared\Model\Tracking\Service\TrackingAvailabilityValidator $trackingAvailabilityValidator,
         \HighSky\Shared\Api\Tracking\Service\AuthHeaderValidatorInterface $authHeaderValidator,
         \HighSky\Shared\Api\Tracking\Validator\TrackingRequestValidatorInterface $trackingRequestValidator,
+        \HighSky\Shared\Model\Security\RequestRateLimiter $requestRateLimiter,
         TrackingApiExceptionFactory $trackingApiExceptionFactory,
         private readonly UserTrackingServiceInterface $userTrackingService
     ) {
@@ -22,6 +23,7 @@ class TrackingUser extends AbstractTrackingEndpoint implements TrackingUserInter
             $trackingAvailabilityValidator,
             $authHeaderValidator,
             $trackingRequestValidator,
+            $requestRateLimiter,
             $trackingApiExceptionFactory
         );
     }
@@ -30,6 +32,7 @@ class TrackingUser extends AbstractTrackingEndpoint implements TrackingUserInter
     {
         return $this->executeWithErrorHandling(function () use ($userId): array {
             $this->trackingAvailabilityValidator->validate();
+            $this->enforceRateLimit('tracking_users');
             $this->authHeaderValidator->validate();
             $validatedUserId = $this->trackingRequestValidator->validateUserId($userId);
 

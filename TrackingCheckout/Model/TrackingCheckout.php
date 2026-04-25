@@ -15,6 +15,7 @@ class TrackingCheckout extends AbstractTrackingEndpoint implements TrackingCheck
         \HighSky\Shared\Model\Tracking\Service\TrackingAvailabilityValidator $trackingAvailabilityValidator,
         \HighSky\Shared\Api\Tracking\Service\AuthHeaderValidatorInterface $authHeaderValidator,
         \HighSky\Shared\Api\Tracking\Validator\TrackingRequestValidatorInterface $trackingRequestValidator,
+        \HighSky\Shared\Model\Security\RequestRateLimiter $requestRateLimiter,
         TrackingApiExceptionFactory $trackingApiExceptionFactory,
         private readonly CheckoutTrackingServiceInterface $checkoutTrackingService
     ) {
@@ -22,6 +23,7 @@ class TrackingCheckout extends AbstractTrackingEndpoint implements TrackingCheck
             $trackingAvailabilityValidator,
             $authHeaderValidator,
             $trackingRequestValidator,
+            $requestRateLimiter,
             $trackingApiExceptionFactory
         );
     }
@@ -30,6 +32,7 @@ class TrackingCheckout extends AbstractTrackingEndpoint implements TrackingCheck
     {
         return $this->executeWithErrorHandling(function () use ($sessionId): array {
             $this->trackingAvailabilityValidator->validate();
+            $this->enforceRateLimit('tracking_checkout');
             $this->authHeaderValidator->validate();
             $validatedSessionId = $this->trackingRequestValidator->validateSessionId($sessionId);
 

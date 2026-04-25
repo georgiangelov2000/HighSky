@@ -2,17 +2,115 @@
 
 Custom Magento 2 modules under `src/app/code/HighSky` that expose a product synchronisation API and a set of tracking APIs consumed by the HighSky platform.
 
+## Short Overview
+
+The HighSky codebase is split into small Magento modules by feature so product sync, tracking, shared infrastructure, and storefront widget behavior can evolve independently without mixing responsibilities in one module.
+
+## StartUpWidget
+
+`HighSky/StartUpWidget` owns the storefront widget bootstrap flow.
+
+- exposes `GET /rest/V1/highsky/tracking/widget/startup`
+- contains the frontend widget embed files: layout XML, template, JS, and view model
+- decides whether the widget should start based on Magento configuration
+- works together with `HighSky/Shared` for auth, config, and shared tracking behavior
+
 ## Module Layout
 
 ```text
 src/app/code/HighSky/
-├── Shared/           shared config, auth, DTOs, validation, setup
+├── Shared/           shared config, auth, DTOs, validation, setup, rate limiting
 ├── Products/         product synchronisation API
 ├── TrackingUsers/    user tracking API
 ├── TrackingOrders/   order tracking API
 ├── TrackingCheckout/ checkout tracking API
-└── StartUpWidget/    storefront widget bootstrap
+└── StartUpWidget/    storefront widget bootstrap API + frontend embed
 ```
+
+## Folder Structure Guide
+
+The codebase is split by feature first, then by responsibility inside each feature module. This keeps unrelated logic out of `Products` and makes each API easier to extend and test independently.
+
+### Top-Level Modules
+
+**`Shared/`**
+- Cross-module code used by more than one HighSky module
+- Central place for runtime config, admin config UI, authentication, validation, common DTOs, error handling, setup patches, and request throttling
+- Other HighSky modules depend on this module
+
+**`Products/`**
+- Owns the product synchronisation API only
+- Contains product-specific request validation, repository/query logic, mapping, and response building
+- Does not contain tracking-specific logic
+
+**`TrackingUsers/`**
+- Owns the `tracking/users/{userId}` endpoint
+- Contains user lookup, previous-order lookup, and user response formatting
+
+**`TrackingOrders/`**
+- Owns the `tracking/orders/{orderId}` endpoint
+- Contains order lookup and order response formatting
+
+**`TrackingCheckout/`**
+- Owns the `tracking/checkout/{sessionId}` endpoint
+- Contains quote/session lookup and checkout response formatting
+
+**`StartUpWidget/`**
+- Owns the `tracking/widget/startup` endpoint
+- Owns the storefront widget embed files: layout XML, template, JS, and view model
+
+### Common Folder Patterns Inside A Module
+
+These folders follow standard Magento conventions across the HighSky modules:
+
+**`Api/`**
+- Service contracts and public PHP interfaces exposed by the module
+- Defines what the module provides without coupling callers to concrete implementations
+
+**`Model/`**
+- Concrete business logic and runtime implementation
+- Usually contains endpoint classes, services, repositories, config readers, validators, and response builders
+
+**`Model/Service/`**
+- Business logic orchestration
+- Coordinates validation, repository access, and response building
+
+**`Model/Repository/`**
+- Data access and query logic
+- Responsible for fetching Magento entities efficiently from the database layer
+
+**`Model/Response/`**
+- Response-building logic for endpoint payloads
+- Converts Magento entities into the API response shape
+
+**`Model/Config/`**
+- Reads Magento configuration values from `core_config_data`
+- Keeps config access out of controllers/endpoints and templates
+
+**`etc/`**
+- Magento wiring for the module
+- Common files here include:
+  - `module.xml` for module registration metadata
+  - `di.xml` for dependency injection preferences
+  - `webapi.xml` for REST endpoint routing
+  - `config.xml` for default configuration values
+
+**`etc/adminhtml/`**
+- Admin-only configuration definitions such as `system.xml`
+- Used for Magento admin settings screens
+
+**`view/frontend/`**
+- Frontend assets such as layout XML, templates, and JavaScript
+- Only present where a module has storefront behavior, like `StartUpWidget`
+
+**`Setup/Patch/`**
+- Idempotent install/upgrade data patches
+- Used for one-time setup behavior such as generating initial config values
+
+**`Block/` and `ViewModel/`**
+- Presentation helpers for Magento admin or storefront rendering
+- `Block` is typically used for admin configuration rendering
+- `ViewModel` is preferred for storefront template data access
 
 ### Module Responsibilities
 
@@ -20,8 +118,10 @@ src/app/code/HighSky/
 - Admin configuration and ACL
 - `GeneralConfig` — master enable flag, tenant ID
 - `TrackingConfig` — tracking feature flags, auth token, widget flags, order history limit
+- `SecurityConfig` — request throttling configuration
 - `AuthHeaderValidator` — validates `X-SkyCommerce-Auth` on every protected endpoint
 - `TrackingAvailabilityValidator` — gates all tracking endpoints behind the module/tracking flags
+- `RequestRateLimiter` — per-endpoint, per-IP abuse protection for the public APIs
 - Shared tracking DTOs and interfaces
 - `TrackingRequestValidator` — path-param validation (userId, orderId, sessionId)
 - `TrackingApiExceptionFactory` — standardised 400/401/403/404/500 responses
@@ -542,15 +642,3 @@ php bin/magento setup:static-content:deploy -f
 ## Setup Behavior
 
 `HighSky/Shared/Setup/Patch/Data/InitializeDefaultConfig` runs during `setup:upgrade` and generates an auth token at `highsky_products/tracking_authentication/auth_token` if none exists. Existing tokens are preserved. The patch is idempotent.
-
-## Local Development
-
-Seed script at `src/var/seed_highsky_tracking.php` creates or reuses:
-
-- product SKU `highsky-tracking-seeded-virtual`
-- customer `highsky.tracking.seeded@example.com`
-- a masked checkout session
-- an order for that customer
-- tracking config values for local verification
-
-Use the **Authentication** admin panel to generate and copy a local token for testing, or check the seeded token in `core_config_data` directly.

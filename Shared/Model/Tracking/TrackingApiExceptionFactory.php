@@ -28,6 +28,11 @@ class TrackingApiExceptionFactory
         return new WebapiException(new Phrase($message), 0, WebapiException::HTTP_NOT_FOUND);
     }
 
+    public function tooManyRequests(string $message): WebapiException
+    {
+        return new WebapiException(new Phrase($message), 0, 429);
+    }
+
     public function internalError(
         string $message = 'An internal error occurred while processing the tracking request.'
     ): WebapiException {

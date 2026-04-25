@@ -9,7 +9,8 @@ use Magento\Store\Model\ScopeInterface;
 class GeneralConfig
 {
     public const XML_PATH_MODULE_ENABLED = 'highsky_products/general/module_enabled';
-    public const XML_PATH_TENANT_ID = 'skycommerce/general/tenant_id';
+    public const XML_PATH_TENANT_ID = 'highsky_products/general/tenant_id';
+    public const XML_PATH_LEGACY_TENANT_ID = 'skycommerce/general/tenant_id';
 
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig
@@ -36,16 +37,26 @@ class GeneralConfig
 
     public function getTenantId(?string $scopeCode = null): string
     {
+        $value = $this->getScopedValue(self::XML_PATH_TENANT_ID, $scopeCode);
+        if ($value === '') {
+            $value = $this->getScopedValue(self::XML_PATH_LEGACY_TENANT_ID, $scopeCode);
+        }
+
+        return $value;
+    }
+
+    private function getScopedValue(string $path, ?string $scopeCode = null): string
+    {
         $value = (string) $this->scopeConfig->getValue(
-            self::XML_PATH_TENANT_ID,
+            $path,
             ScopeInterface::SCOPE_WEBSITE,
             $scopeCode
         );
 
         if ($value === '') {
-            $value = (string) $this->scopeConfig->getValue(self::XML_PATH_TENANT_ID);
+            $value = (string) $this->scopeConfig->getValue($path);
         }
 
-        return $value;
+        return trim($value);
     }
 }

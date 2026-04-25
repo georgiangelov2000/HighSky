@@ -9,6 +9,7 @@ interface TrackingItemInterface
     public const SKU = 'sku';
     public const NAME = 'name';
     public const QTY = 'qty';
+    public const IMAGE_URL = 'image_url';
 
     /**
      * @return string|null
@@ -53,4 +54,15 @@ interface TrackingItemInterface
      * @return $this
      */
     public function setQty(float $qty): self;
+
+    /**
+     * @return string|null
+     */
+    public function getImageUrl(): ?string;
+
+    /**
+     * @param string|null $imageUrl
+     * @return $this
+     */
+    public function setImageUrl(?string $imageUrl): self;
 }

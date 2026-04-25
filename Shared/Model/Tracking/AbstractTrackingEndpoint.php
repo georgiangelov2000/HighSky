@@ -5,6 +5,7 @@ namespace HighSky\Shared\Model\Tracking;
 
 use HighSky\Shared\Api\Tracking\Service\AuthHeaderValidatorInterface;
 use HighSky\Shared\Api\Tracking\Validator\TrackingRequestValidatorInterface;
+use HighSky\Shared\Model\Security\RequestRateLimiter;
 use Magento\Framework\Webapi\Exception as WebapiException;
 
 abstract class AbstractTrackingEndpoint
@@ -13,6 +14,7 @@ abstract class AbstractTrackingEndpoint
         protected readonly Service\TrackingAvailabilityValidator $trackingAvailabilityValidator,
         protected readonly AuthHeaderValidatorInterface $authHeaderValidator,
         protected readonly TrackingRequestValidatorInterface $trackingRequestValidator,
+        protected readonly RequestRateLimiter $requestRateLimiter,
         private readonly TrackingApiExceptionFactory $trackingApiExceptionFactory
     ) {}
 
@@ -29,5 +31,10 @@ abstract class AbstractTrackingEndpoint
         } catch (\Throwable $exception) {
             throw $this->trackingApiExceptionFactory->internalError();
         }
+    }
+
+    protected function enforceRateLimit(string $bucket): void
+    {
+        $this->requestRateLimiter->validate($bucket);
     }
 }

@@ -21,7 +21,7 @@
     <type name="Magento\Config\Model\Config\TypePool">
         <arguments>
             <argument name="sensitive" xsi:type="array">
-                <item name="highsky_products/tracking/auth_token" xsi:type="string">1</item>
+                <item name="highsky_products/tracking_authentication/auth_token" xsi:type="string">1</item>
             </argument>
         </arguments>
     </type>

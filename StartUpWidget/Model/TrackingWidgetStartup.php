@@ -15,6 +15,7 @@ class TrackingWidgetStartup extends AbstractTrackingEndpoint implements Tracking
         \HighSky\Shared\Model\Tracking\Service\TrackingAvailabilityValidator $trackingAvailabilityValidator,
         \HighSky\Shared\Api\Tracking\Service\AuthHeaderValidatorInterface $authHeaderValidator,
         \HighSky\Shared\Api\Tracking\Validator\TrackingRequestValidatorInterface $trackingRequestValidator,
+        \HighSky\Shared\Model\Security\RequestRateLimiter $requestRateLimiter,
         TrackingApiExceptionFactory $trackingApiExceptionFactory,
         private readonly TrackingWidgetStartupServiceInterface $trackingWidgetStartupService
     ) {
@@ -22,6 +23,7 @@ class TrackingWidgetStartup extends AbstractTrackingEndpoint implements Tracking
             $trackingAvailabilityValidator,
             $authHeaderValidator,
             $trackingRequestValidator,
+            $requestRateLimiter,
             $trackingApiExceptionFactory
         );
     }
@@ -30,6 +32,7 @@ class TrackingWidgetStartup extends AbstractTrackingEndpoint implements Tracking
     {
         return $this->executeWithErrorHandling(function (): array {
             $this->trackingAvailabilityValidator->validate();
+            $this->enforceRateLimit('tracking_widget_startup');
             $this->authHeaderValidator->validate();
 
             return ['response' => $this->trackingWidgetStartupService->execute()];

@@ -9,6 +9,7 @@ use HighSky\Products\Api\ProductSync\Response\ResponseBuilderInterface;
 use HighSky\Products\Api\ProductSync\Service\ProductRepositoryInterface;
 use HighSky\Products\Api\ProductSync\Service\ProductSyncServiceInterface;
 use HighSky\Products\Api\ProductSync\Validator\RequestValidatorInterface;
+use HighSky\Products\Model\Config\ProductSync\ApiColumnsConfig;
 
 class ProductSyncService implements ProductSyncServiceInterface
 {
@@ -16,7 +17,8 @@ class ProductSyncService implements ProductSyncServiceInterface
         private readonly RequestValidatorInterface $requestValidator,
         private readonly ProductRepositoryInterface $productRepository,
         private readonly ProductMapperInterface $productMapper,
-        private readonly ResponseBuilderInterface $responseBuilder
+        private readonly ResponseBuilderInterface $responseBuilder,
+        private readonly ApiColumnsConfig $apiColumnsConfig
     ) {}
 
     public function execute(
@@ -24,16 +26,18 @@ class ProductSyncService implements ProductSyncServiceInterface
         ?string $updateAfter = null
     ): ProductSyncResponseInterface {
         $validated = $this->requestValidator->validate($perPage, $updateAfter);
+        $enabledColumns = $this->apiColumnsConfig->getEnabledColumns();
 
         $result = $this->productRepository->getList(
             $validated['update_after'],
             $validated['per_page'],
-            $validated['current_page']
+            $validated['current_page'],
+            $enabledColumns
         );
 
         $products = [];
         foreach ($result['items'] as $product) {
-            $products[] = $this->productMapper->map($product);
+            $products[] = $this->productMapper->map($product, $enabledColumns);
         }
 
         return $this->responseBuilder->build(

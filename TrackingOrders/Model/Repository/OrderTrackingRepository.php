@@ -16,7 +16,18 @@ class OrderTrackingRepository implements OrderTrackingRepositoryInterface
     public function getByOrderId(string $orderId): ?OrderInterface
     {
         $collection = $this->orderCollectionFactory->create();
-        $collection->addFieldToSelect('*');
+        $collection->addFieldToSelect([
+            'entity_id',
+            'increment_id',
+            'status',
+            'created_at',
+            'customer_id',
+            'customer_firstname',
+            'customer_lastname',
+            'customer_email',
+            'grand_total',
+            'order_currency_code',
+        ]);
         $collection->addFieldToFilter('increment_id', $orderId);
         $collection->setPageSize(1);
         $collection->setCurPage(1);

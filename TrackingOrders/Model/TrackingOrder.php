@@ -15,6 +15,7 @@ class TrackingOrder extends AbstractTrackingEndpoint implements TrackingOrderInt
         \HighSky\Shared\Model\Tracking\Service\TrackingAvailabilityValidator $trackingAvailabilityValidator,
         \HighSky\Shared\Api\Tracking\Service\AuthHeaderValidatorInterface $authHeaderValidator,
         \HighSky\Shared\Api\Tracking\Validator\TrackingRequestValidatorInterface $trackingRequestValidator,
+        \HighSky\Shared\Model\Security\RequestRateLimiter $requestRateLimiter,
         TrackingApiExceptionFactory $trackingApiExceptionFactory,
         private readonly OrderTrackingServiceInterface $orderTrackingService
     ) {
@@ -22,6 +23,7 @@ class TrackingOrder extends AbstractTrackingEndpoint implements TrackingOrderInt
             $trackingAvailabilityValidator,
             $authHeaderValidator,
             $trackingRequestValidator,
+            $requestRateLimiter,
             $trackingApiExceptionFactory
         );
     }
@@ -30,6 +32,7 @@ class TrackingOrder extends AbstractTrackingEndpoint implements TrackingOrderInt
     {
         return $this->executeWithErrorHandling(function () use ($orderId): array {
             $this->trackingAvailabilityValidator->validate();
+            $this->enforceRateLimit('tracking_orders');
             $this->authHeaderValidator->validate();
             $validatedOrderId = $this->trackingRequestValidator->validateOrderId($orderId);
 
