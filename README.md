@@ -76,6 +76,39 @@ Stores > Configuration > Catalog > HighSky Products
 | API Reference | Read-only endpoint reference table |
 | Authentication | Auth token management |
 
+### Where Settings Are Stored
+
+Every value saved through `Stores > Configuration` is written to the `core_config_data` table in the Magento database.
+
+**Table structure:**
+
+| Column | Description |
+|--------|-------------|
+| `scope` | `default`, `websites`, or `stores` — the config level the value applies to |
+| `scope_id` | `0` for default scope, website ID or store ID otherwise |
+| `path` | Dot-separated config path, e.g. `highsky_products/tracking/enabled` |
+| `value` | The stored value. Encrypted fields (like the auth token) are stored as `<version>:<key_id>:<ciphertext>` |
+
+**Scoping rules:** Magento resolves config from the most specific scope outward — store → website → default. If a value is set at website scope it overrides the default for that website only, leaving other websites unaffected.
+
+**Sensitive values:** Fields with `backend_model="Magento\Config\Model\Config\Backend\Encrypted"` (the auth token) are encrypted using Magento's `EncryptorInterface` before being written. The raw token is never stored in plaintext.
+
+**Querying values directly:**
+
+```sql
+SELECT scope, scope_id, path, value
+FROM core_config_data
+WHERE path LIKE 'highsky_products/%'
+   OR path LIKE 'skycommerce/%'
+ORDER BY path, scope;
+```
+
+**Clearing cached config** after a direct database change:
+
+```bash
+php bin/magento cache:flush config
+```
+
 ### Config Paths
 
 | Path | Default | Purpose |
