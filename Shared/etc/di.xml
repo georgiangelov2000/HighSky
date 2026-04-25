@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="HighSky\Shared\Api\Tracking\Data\TrackingItemInterface"
+                type="HighSky\Shared\Model\Tracking\Data\TrackingItem"/>
+    <preference for="HighSky\Shared\Api\Tracking\Data\TrackingHistoricalOrderInterface"
+                type="HighSky\Shared\Model\Tracking\Data\TrackingHistoricalOrder"/>
+    <preference for="HighSky\Shared\Api\Tracking\Data\TrackingOrderResponseInterface"
+                type="HighSky\Shared\Model\Tracking\Data\TrackingOrderResponse"/>
+    <preference for="HighSky\Shared\Api\Tracking\Data\TrackingUserResponseInterface"
+                type="HighSky\Shared\Model\Tracking\Data\TrackingUserResponse"/>
+    <preference for="HighSky\Shared\Api\Tracking\Data\TrackingCheckoutResponseInterface"
+                type="HighSky\Shared\Model\Tracking\Data\TrackingCheckoutResponse"/>
+    <preference for="HighSky\Shared\Api\Tracking\Data\TrackingWidgetStartupResponseInterface"
+                type="HighSky\Shared\Model\Tracking\Data\TrackingWidgetStartupResponse"/>
+    <preference for="HighSky\Shared\Api\Tracking\Service\AuthHeaderValidatorInterface"
+                type="HighSky\Shared\Model\Tracking\Service\AuthHeaderValidator"/>
+    <preference for="HighSky\Shared\Api\Tracking\Validator\TrackingRequestValidatorInterface"
+                type="HighSky\Shared\Model\Tracking\Validator\TrackingRequestValidator"/>
+
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="highsky_products/tracking/auth_token" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

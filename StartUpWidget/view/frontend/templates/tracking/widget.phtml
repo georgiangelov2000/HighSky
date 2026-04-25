@@ -1,0 +1,35 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \HighSky\StartUpWidget\ViewModel\TrackingWidgetConfig $viewModel */
+$viewModel = $block->getData('view_model');
+
+if (!$viewModel || !$viewModel->isEnabled()) {
+    return;
+}
+?>
+<script type="text/javascript">
+(function (d, t) {
+    var v = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+
+    v.onload = function () {
+        if (window.ChatWidget && typeof window.ChatWidget.init === "function") {
+            var chatConfig = {
+                tenantId:        "<?= $block->escapeJs($viewModel->getTenantId()) ?>",
+                apiBaseUrl:      "https://cfe.highsky.ai",
+                chat_init_url:   window.location.href,
+                cart_session_id: null,
+                user_id:         <?= /* @noEscape */ $viewModel->getUserIdJson() ?>,
+                shop_platform:   "magento2"
+            };
+            window.ChatWidget.init(chatConfig);
+        }
+    };
+
+    v.src = "https://cfe.highsky.ai/highsky-chatwidget.js?v=<?= date('Y-m-d\TH') ?>";
+    v.type = "text/javascript";
+    s.parentNode.insertBefore(v, s);
+})(document, "script");
+</script>

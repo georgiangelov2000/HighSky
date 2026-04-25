@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="highsky_products" translate="label" sortOrder="910" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>SkyCommerce</label>
+            <tab>catalog</tab>
+            <resource>HighSky_Shared::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="module_enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Module Enabled</label>
+                    <comment>Master feature flag for all HighSky modules and endpoints.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="tracking" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Settings</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracking Enabled</label>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> — all tracking endpoints are active
+                        (<code>/tracking/orders</code>, <code>/tracking/users</code>, <code>/tracking/checkout</code>, <code>/tracking/widget/startup</code>)
+                        and the storefront widget is eligible to load.<br/>
+                        <strong>No</strong> — every tracking endpoint returns <code>403 Forbidden</code>
+                        and the storefront widget is suppressed, regardless of the Widget Enabled flag.
+                    ]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="auth_required" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracking Auth Required</label>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> — every request to a tracking or product sync endpoint must include the
+                        <code>X-SkyCommerce-Auth</code> header with the configured token.
+                        A missing or invalid header returns <code>401 Unauthorized</code>.<br/>
+                        <strong>No</strong> — endpoints accept requests without authentication.
+                        Use only in development or fully trusted network environments.
+                    ]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="widget_enabled" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Enabled</label>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> — the SkyCommerce widget script is injected into every storefront page.
+                        On load it calls <code>ChatWidget.init()</code> with the store's tenant ID, customer context, and current URL.<br/>
+                        <strong>No</strong> — no script is injected into the storefront.
+                        The <code>/tracking/widget/startup</code> endpoint will return <code>enabled: false</code>.
+                    ]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="user_order_history_limit" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>User Order History Limit</label>
+                    <comment><![CDATA[
+                        Maximum number of most-recent orders included in the <code>/tracking/users/:userId</code> response.
+                        Higher values increase payload size and query time. Minimum value is <strong>1</strong>. Default is <strong>20</strong>.
+                    ]]></comment>
+                    <validate>required-entry validate-number validate-greater-than-zero</validate>
+                </field>
+            </group>
+            <group id="api_reference" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>API Reference</label>
+                <field id="endpoints" type="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label></label>
+                    <frontend_model>HighSky\Shared\Block\Adminhtml\System\Config\ApiDocsBlock</frontend_model>
+                </field>
+            </group>
+            <group id="tracking_authentication" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Authentication</label>
+                <field id="auth_token" translate="label comment" type="obscure" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Auth Token</label>
+                    <comment>Used in the X-SkyCommerce-Auth header for API authentication.</comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <frontend_model>HighSky\Shared\Block\Adminhtml\System\Config\AuthKeyField</frontend_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

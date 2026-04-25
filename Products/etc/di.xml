@@ -1,24 +1,24 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="HighSky\Products\Api\ProductSyncInterface"
-                type="HighSky\Products\Model\ProductSync"/>
-    <preference for="HighSky\Products\Api\Data\ProductSyncItemInterface"
-                type="HighSky\Products\Model\Data\ProductSyncItem"/>
-    <preference for="HighSky\Products\Api\Data\ProductSyncResponseInterface"
-                type="HighSky\Products\Model\Data\ProductSyncResponse"/>
-    <preference for="HighSky\Products\Api\Service\ProductSyncServiceInterface"
-                type="HighSky\Products\Model\Service\ProductSyncService"/>
-    <preference for="HighSky\Products\Api\Service\ProductRepositoryInterface"
-                type="HighSky\Products\Model\Repository\ProductRepository"/>
-    <preference for="HighSky\Products\Api\Validator\RequestValidatorInterface"
-                type="HighSky\Products\Model\Validator\RequestValidator"/>
-    <preference for="HighSky\Products\Api\Mapper\ProductMapperInterface"
-                type="HighSky\Products\Model\Mapper\ProductMapper"/>
-    <preference for="HighSky\Products\Api\Response\ResponseBuilderInterface"
-                type="HighSky\Products\Model\Response\ResponseBuilder"/>
+    <preference for="HighSky\Products\Api\ProductSync\ProductSyncInterface"
+                type="HighSky\Products\Model\ProductSync\ProductSync"/>
+    <preference for="HighSky\Products\Api\ProductSync\Data\ProductSyncItemInterface"
+                type="HighSky\Products\Model\ProductSync\Data\ProductSyncItem"/>
+    <preference for="HighSky\Products\Api\ProductSync\Data\ProductSyncResponseInterface"
+                type="HighSky\Products\Model\ProductSync\Data\ProductSyncResponse"/>
+    <preference for="HighSky\Products\Api\ProductSync\Service\ProductSyncServiceInterface"
+                type="HighSky\Products\Model\ProductSync\Service\ProductSyncService"/>
+    <preference for="HighSky\Products\Api\ProductSync\Service\ProductRepositoryInterface"
+                type="HighSky\Products\Model\ProductSync\Repository\ProductRepository"/>
+    <preference for="HighSky\Products\Api\ProductSync\Validator\RequestValidatorInterface"
+                type="HighSky\Products\Model\ProductSync\Validator\RequestValidator"/>
+    <preference for="HighSky\Products\Api\ProductSync\Mapper\ProductMapperInterface"
+                type="HighSky\Products\Model\ProductSync\Mapper\ProductMapper"/>
+    <preference for="HighSky\Products\Api\ProductSync\Response\ResponseBuilderInterface"
+                type="HighSky\Products\Model\ProductSync\Response\ResponseBuilder"/>
 
-    <type name="HighSky\Products\Model\Config\ApiColumnsConfig">
+    <type name="HighSky\Products\Model\Config\ProductSync\ApiColumnsConfig">
         <arguments>
             <argument name="defaultColumns" xsi:type="array">
                 <item name="id" xsi:type="string">ID</item>

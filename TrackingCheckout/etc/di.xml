@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="HighSky\TrackingCheckout\Api\TrackingCheckoutInterface"
+                type="HighSky\TrackingCheckout\Model\TrackingCheckout"/>
+    <preference for="HighSky\TrackingCheckout\Api\Service\CheckoutTrackingServiceInterface"
+                type="HighSky\TrackingCheckout\Model\Service\CheckoutTrackingService"/>
+    <preference for="HighSky\TrackingCheckout\Api\Service\CheckoutTrackingRepositoryInterface"
+                type="HighSky\TrackingCheckout\Model\Repository\CheckoutTrackingRepository"/>
+    <preference for="HighSky\TrackingCheckout\Api\Response\CheckoutTrackingResponseBuilderInterface"
+                type="HighSky\TrackingCheckout\Model\Response\CheckoutTrackingResponseBuilder"/>
+</config>

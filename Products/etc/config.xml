@@ -3,6 +3,9 @@
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <highsky_products>
+            <product_sync>
+                <enabled>1</enabled>
+            </product_sync>
             <api_columns>
                 <enabled_columns>id,sku,name,price,special_price,special_from_date,special_to_date,cost,tax_class_id,category_names,created_at,updated_at,status,visibility,image_url,qty,is_in_stock,manage_stock,use_config_manage_stock,backorders,min_qty,min_sale_qty,max_sale_qty,notify_stock_qty,enable_qty_increments,qty_increments,variants</enabled_columns>
             </api_columns>

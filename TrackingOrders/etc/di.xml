@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="HighSky\TrackingOrders\Api\TrackingOrderInterface"
+                type="HighSky\TrackingOrders\Model\TrackingOrder"/>
+    <preference for="HighSky\TrackingOrders\Api\Service\OrderTrackingServiceInterface"
+                type="HighSky\TrackingOrders\Model\Service\OrderTrackingService"/>
+    <preference for="HighSky\TrackingOrders\Api\Service\OrderTrackingRepositoryInterface"
+                type="HighSky\TrackingOrders\Model\Repository\OrderTrackingRepository"/>
+    <preference for="HighSky\TrackingOrders\Api\Response\OrderTrackingResponseBuilderInterface"
+                type="HighSky\TrackingOrders\Model\Response\OrderTrackingResponseBuilder"/>
+</config>
