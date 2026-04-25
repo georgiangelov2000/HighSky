@@ -57,6 +57,357 @@ src/app/code/HighSky/
 
 "Required" means the `X-SkyCommerce-Auth` header must be present when **Tracking Auth Required** is enabled in config. When the flag is off, the header is ignored.
 
+## API Parameters
+
+Base URL for examples:
+
+```text
+https://magento.test/rest/V1
+```
+
+All current HighSky APIs are `GET` endpoints.
+
+- No endpoint currently accepts JSON request bodies
+- No endpoint currently accepts form fields
+- No endpoint currently accepts file uploads
+
+### Product Sync
+
+**Endpoint**
+
+```text
+GET /rest/V1/highsky/sync/products
+```
+
+**Accepted query parameters**
+
+| Parameter | Type | Required | Default | Validation |
+|-----------|------|----------|---------|------------|
+| `per_page` | integer or integer-like string | No | `100` | Must be an integer, minimum `1`, values above `200` are capped to `200` |
+| `update_after` | string | No | none | Must match exact format `Y-m-d H:i:s` |
+
+**Accepted body parameters**
+
+- none
+
+**Parameter notes**
+
+- `per_page` is normalized server-side
+- `update_after` is optional; when omitted, all products are eligible
+- filtering uses `created_at > update_after OR updated_at > update_after`
+
+**Example requests**
+
+Minimal:
+
+```bash
+curl -k "https://magento.test/rest/V1/highsky/sync/products"
+```
+
+With `per_page`:
+
+```bash
+curl -k "https://magento.test/rest/V1/highsky/sync/products?per_page=50"
+```
+
+With all supported parameters:
+
+```bash
+curl -k "https://magento.test/rest/V1/highsky/sync/products?per_page=50&update_after=2026-04-25%2000:00:00"
+```
+
+**Example response**
+
+```json
+{
+  "per_page": 1,
+  "total_count": 1,
+  "total_pages": 1,
+  "products": [
+    {
+      "id": 1,
+      "sku": "highsky-tracking-seeded-virtual",
+      "name": "HighSky Seeded Tracking Virtual Product",
+      "price": "1999.00",
+      "tax_class_id": 0,
+      "category_names": [],
+      "created_at": "2026-04-25 12:56:42",
+      "updated_at": "2026-04-25 12:56:42",
+      "status": "Enabled",
+      "visibility": "Catalog, Search",
+      "is_in_stock": true,
+      "manage_stock": false,
+      "use_config_manage_stock": false,
+      "backorders": 0,
+      "min_qty": 0,
+      "min_sale_qty": 1,
+      "max_sale_qty": 10000,
+      "notify_stock_qty": 1,
+      "enable_qty_increments": false,
+      "qty_increments": 0,
+      "variants": []
+    }
+  ]
+}
+```
+
+**Validation error examples**
+
+Invalid `per_page`:
+
+```json
+{
+  "message": "The \"per_page\" parameter must be an integer."
+}
+```
+
+Invalid `update_after`:
+
+```json
+{
+  "message": "The \"update_after\" parameter must use the format Y-m-d H:i:s."
+}
+```
+
+### Tracking Orders
+
+**Endpoint**
+
+```text
+GET /rest/V1/highsky/tracking/orders/:orderId
+```
+
+**Accepted path parameters**
+
+| Parameter | Type | Required | Default | Validation |
+|-----------|------|----------|---------|------------|
+| `orderId` | string | Yes | none | Trimmed value must not be empty |
+
+**Accepted query parameters**
+
+- none
+
+**Accepted body parameters**
+
+- none
+
+**Headers**
+
+| Header | Type | Required | Default | Validation |
+|--------|------|----------|---------|------------|
+| `X-SkyCommerce-Auth` | string | Yes when tracking auth is enabled | none | Must exactly match configured token |
+
+**Example request**
+
+```bash
+curl -k \
+  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
+  "https://magento.test/rest/V1/highsky/tracking/orders/000000001"
+```
+
+**Example response**
+
+```json
+{
+  "order_id": "000000001",
+  "status": "pending",
+  "created_at": "2026-04-25 12:57:08",
+  "user_id": "1",
+  "user_name": "HighSky Seeded",
+  "user_email": "highsky.tracking.seeded@example.com",
+  "user_telephone": "+35970012345",
+  "grand_total": 1999,
+  "currency_code": "USD",
+  "items": [
+    {
+      "product_id": "1",
+      "sku": "highsky-tracking-seeded-virtual",
+      "name": "HighSky Seeded Tracking Virtual Product",
+      "qty": 1
+    }
+  ]
+}
+```
+
+### Tracking Users
+
+**Endpoint**
+
+```text
+GET /rest/V1/highsky/tracking/users/:userId
+```
+
+**Accepted path parameters**
+
+| Parameter | Type | Required | Default | Validation |
+|-----------|------|----------|---------|------------|
+| `userId` | integer path segment | Yes | none | Must be a positive integer |
+
+**Accepted query parameters**
+
+- none
+
+**Accepted body parameters**
+
+- none
+
+**Headers**
+
+| Header | Type | Required | Default | Validation |
+|--------|------|----------|---------|------------|
+| `X-SkyCommerce-Auth` | string | Yes when tracking auth is enabled | none | Must exactly match configured token |
+
+**Parameter notes**
+
+- this endpoint uses only the provided `userId`
+- no guest session fallback is used
+- no customer session inference is used
+
+**Example request**
+
+```bash
+curl -k \
+  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
+  "https://magento.test/rest/V1/highsky/tracking/users/1"
+```
+
+**Example response**
+
+```json
+{
+  "user_name": "HighSky Seeded",
+  "user_email": "highsky.tracking.seeded@example.com",
+  "user_telephone": "+35970012345",
+  "previous_orders": [
+    {
+      "order_id": "000000001",
+      "status": "pending",
+      "created_at": "2026-04-25 12:57:08",
+      "items": [
+        {
+          "product_id": "1",
+          "sku": "highsky-tracking-seeded-virtual",
+          "name": "HighSky Seeded Tracking Virtual Product",
+          "qty": 1
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Tracking Checkout
+
+**Endpoint**
+
+```text
+GET /rest/V1/highsky/tracking/checkout/:sessionId
+```
+
+**Accepted path parameters**
+
+| Parameter | Type | Required | Default | Validation |
+|-----------|------|----------|---------|------------|
+| `sessionId` | string | Yes | none | Trimmed value must not be empty |
+
+**Accepted query parameters**
+
+- none
+
+**Accepted body parameters**
+
+- none
+
+**Headers**
+
+| Header | Type | Required | Default | Validation |
+|--------|------|----------|---------|------------|
+| `X-SkyCommerce-Auth` | string | Yes when tracking auth is enabled | none | Must exactly match configured token |
+
+**Example request**
+
+```bash
+curl -k \
+  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
+  "https://magento.test/rest/V1/highsky/tracking/checkout/I7eKc4F5cy2b5PBJWzLtxVbzEkfHOJRN"
+```
+
+**Example response**
+
+```json
+{
+  "session_id": "I7eKc4F5cy2b5PBJWzLtxVbzEkfHOJRN",
+  "quote_id": "1",
+  "is_active": true,
+  "customer_id": "1",
+  "customer_email": "highsky.tracking.seeded@example.com",
+  "items_count": 1,
+  "items_qty": 1,
+  "grand_total": 1999,
+  "currency_code": "USD",
+  "items": [
+    {
+      "product_id": "1",
+      "sku": "highsky-tracking-seeded-virtual",
+      "name": "HighSky Seeded Tracking Virtual Product",
+      "qty": 1
+    }
+  ]
+}
+```
+
+### Widget Startup
+
+**Endpoint**
+
+```text
+GET /rest/V1/highsky/tracking/widget/startup
+```
+
+**Accepted path parameters**
+
+- none
+
+**Accepted query parameters**
+
+- none
+
+**Accepted body parameters**
+
+- none
+
+**Headers**
+
+| Header | Type | Required | Default | Validation |
+|--------|------|----------|---------|------------|
+| `X-SkyCommerce-Auth` | string | Yes when tracking auth is enabled | none | Must exactly match configured token |
+
+**Example request**
+
+```bash
+curl -k \
+  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
+  "https://magento.test/rest/V1/highsky/tracking/widget/startup"
+```
+
+**Example responses**
+
+Enabled:
+
+```json
+{
+  "enabled": true
+}
+```
+
+Disabled:
+
+```json
+{
+  "enabled": false
+}
+```
+
 ## Configuration
 
 **Admin path:**
