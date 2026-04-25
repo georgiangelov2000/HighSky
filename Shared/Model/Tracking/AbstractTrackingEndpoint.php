@@ -37,4 +37,20 @@ abstract class AbstractTrackingEndpoint
     {
         $this->requestRateLimiter->validate($bucket);
     }
+
+    /**
+     * @template T
+     * @param callable(): T $serviceCallback
+     * @return T
+     */
+    protected function executeProtected(string $bucket, callable $serviceCallback)
+    {
+        return $this->executeWithErrorHandling(function () use ($bucket, $serviceCallback): array {
+            $this->trackingAvailabilityValidator->validate();
+            $this->enforceRateLimit($bucket);
+            $this->authHeaderValidator->validate();
+
+            return ['response' => $serviceCallback()];
+        })['response'];
+    }
 }

@@ -8,6 +8,8 @@ use HighSky\Shared\Model\Tracking\Response\TrackingItemFormatter;
 use HighSky\TrackingCheckout\Api\Response\CheckoutTrackingResponseBuilderInterface;
 use HighSky\Shared\Model\Tracking\Data\TrackingCheckoutResponseFactory;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Item as QuoteItem;
 
 class CheckoutTrackingResponseBuilder implements CheckoutTrackingResponseBuilderInterface
 {
@@ -18,8 +20,16 @@ class CheckoutTrackingResponseBuilder implements CheckoutTrackingResponseBuilder
 
     public function build(string $sessionId, CartInterface $quote): TrackingCheckoutResponseInterface
     {
+        // CartRepository always returns a Quote instance. Narrowing here makes the
+        // concrete Quote methods available (getAllItems, getCustomerId, etc.) which are
+        // not declared on CartInterface but exist on the model via magic __call.
+        if (!$quote instanceof Quote) {
+            throw new \InvalidArgumentException('Expected ' . Quote::class . ', got ' . get_class($quote));
+        }
+
         $items = [];
-        foreach ($quote->getItems() as $item) {
+        /** @var QuoteItem $item */
+        foreach ($quote->getAllItems() as $item) {
             if ($item->getParentItemId()) {
                 continue;
             }

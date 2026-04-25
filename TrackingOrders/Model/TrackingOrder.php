@@ -30,13 +30,10 @@ class TrackingOrder extends AbstractTrackingEndpoint implements TrackingOrderInt
 
     public function execute(string $orderId): TrackingOrderResponseInterface
     {
-        return $this->executeWithErrorHandling(function () use ($orderId): array {
-            $this->trackingAvailabilityValidator->validate();
-            $this->enforceRateLimit('tracking_orders');
-            $this->authHeaderValidator->validate();
+        return $this->executeProtected('tracking_orders', function () use ($orderId): TrackingOrderResponseInterface {
             $validatedOrderId = $this->trackingRequestValidator->validateOrderId($orderId);
 
-            return ['response' => $this->orderTrackingService->execute($validatedOrderId)];
-        })['response'];
+            return $this->orderTrackingService->execute($validatedOrderId);
+        });
     }
 }

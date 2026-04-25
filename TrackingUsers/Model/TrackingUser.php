@@ -30,13 +30,10 @@ class TrackingUser extends AbstractTrackingEndpoint implements TrackingUserInter
 
     public function execute(string $userId): TrackingUserResponseInterface
     {
-        return $this->executeWithErrorHandling(function () use ($userId): array {
-            $this->trackingAvailabilityValidator->validate();
-            $this->enforceRateLimit('tracking_users');
-            $this->authHeaderValidator->validate();
+        return $this->executeProtected('tracking_users', function () use ($userId): TrackingUserResponseInterface {
             $validatedUserId = $this->trackingRequestValidator->validateUserId($userId);
 
-            return ['response' => $this->userTrackingService->execute($validatedUserId)];
-        })['response'];
+            return $this->userTrackingService->execute($validatedUserId);
+        });
     }
 }

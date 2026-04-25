@@ -8,7 +8,6 @@ use HighSky\Products\Api\ProductSync\Mapper\ProductMapperInterface;
 use HighSky\Products\Model\ProductSync\Data\ProductSyncItemFactory;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
-use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Model\Product\Media\Config as MediaConfig;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
@@ -16,18 +15,14 @@ use Magento\ConfigurableProduct\Model\Product\Type\Configurable as ConfigurableP
 
 class ProductMapper implements ProductMapperInterface
 {
-    /**
-     * @var array<int, string>
-     */
-    private array $categoryNameCache = [];
-
     public function __construct(
         private readonly ProductSyncItemFactory $productSyncItemFactory,
         private readonly ProductStatus $productStatus,
         private readonly MediaConfig $mediaConfig,
         private readonly StockRegistryInterface $stockRegistry,
-        private readonly CategoryCollectionFactory $categoryCollectionFactory,
-        private readonly ConfigurableProductType $configurableProductType
+        private readonly ConfigurableProductType $configurableProductType,
+        private readonly CategoryNameResolver $categoryNameResolver,
+        private readonly StockDataMapper $stockDataMapper
     ) {}
 
     public function map(Product $product, array $enabledColumns): ProductSyncItemInterface
@@ -39,7 +34,7 @@ class ProductMapper implements ProductMapperInterface
     {
         $item = $this->productSyncItemFactory->create();
         $enabledColumns = array_fill_keys($enabledColumns, true);
-        $stockItem = $this->requiresStockData($enabledColumns)
+        $stockItem = $this->stockDataMapper->requiresStockData($enabledColumns)
             ? $this->stockRegistry->getStockItem((int) $product->getId())
             : null;
 
@@ -81,7 +76,7 @@ class ProductMapper implements ProductMapperInterface
 
         if (isset($enabledColumns['category_names'])) {
             $categoryIds = array_map('intval', $product->getCategoryIds() ?: []);
-            $item->setCategoryNames($this->getCategoryNames($categoryIds));
+            $item->setCategoryNames($this->categoryNameResolver->resolve($categoryIds));
         }
 
         if (isset($enabledColumns['created_at'])) {
@@ -104,49 +99,7 @@ class ProductMapper implements ProductMapperInterface
             $item->setImageUrl($this->getImageUrl($product));
         }
 
-        if (isset($enabledColumns['qty'])) {
-            $item->setQty($stockItem && $stockItem->getQty() !== null ? (float) $stockItem->getQty() : null);
-        }
-
-        if (isset($enabledColumns['is_in_stock'])) {
-            $item->setIsInStock($stockItem ? (bool) $stockItem->getIsInStock() : false);
-        }
-
-        if (isset($enabledColumns['manage_stock'])) {
-            $item->setManageStock($stockItem ? (bool) $stockItem->getManageStock() : false);
-        }
-
-        if (isset($enabledColumns['use_config_manage_stock'])) {
-            $item->setUseConfigManageStock($stockItem ? (bool) $stockItem->getUseConfigManageStock() : false);
-        }
-
-        if (isset($enabledColumns['backorders'])) {
-            $item->setBackorders($stockItem ? (int) $stockItem->getBackorders() : 0);
-        }
-
-        if (isset($enabledColumns['min_qty'])) {
-            $item->setMinQty($stockItem && $stockItem->getMinQty() !== null ? (float) $stockItem->getMinQty() : null);
-        }
-
-        if (isset($enabledColumns['min_sale_qty'])) {
-            $item->setMinSaleQty($stockItem && $stockItem->getMinSaleQty() !== null ? (float) $stockItem->getMinSaleQty() : null);
-        }
-
-        if (isset($enabledColumns['max_sale_qty'])) {
-            $item->setMaxSaleQty($stockItem && $stockItem->getMaxSaleQty() !== null ? (float) $stockItem->getMaxSaleQty() : null);
-        }
-
-        if (isset($enabledColumns['notify_stock_qty'])) {
-            $item->setNotifyStockQty($stockItem && $stockItem->getNotifyStockQty() !== null ? (float) $stockItem->getNotifyStockQty() : null);
-        }
-
-        if (isset($enabledColumns['enable_qty_increments'])) {
-            $item->setEnableQtyIncrements($stockItem ? (bool) $stockItem->getEnableQtyIncrements() : false);
-        }
-
-        if (isset($enabledColumns['qty_increments'])) {
-            $item->setQtyIncrements($stockItem && $stockItem->getQtyIncrements() !== null ? (float) $stockItem->getQtyIncrements() : null);
-        }
+        $this->stockDataMapper->apply($item, $stockItem, $enabledColumns);
 
         if (isset($enabledColumns['variants'])) {
             $item->setVariants($includeVariants ? $this->getVariants($product, array_keys($enabledColumns)) : []);
@@ -172,32 +125,6 @@ class ProductMapper implements ProductMapperInterface
         return $variants;
     }
 
-    /**
-     * @param array<string, bool> $enabledColumns
-     */
-    private function requiresStockData(array $enabledColumns): bool
-    {
-        foreach ([
-            'qty',
-            'is_in_stock',
-            'manage_stock',
-            'use_config_manage_stock',
-            'backorders',
-            'min_qty',
-            'min_sale_qty',
-            'max_sale_qty',
-            'notify_stock_qty',
-            'enable_qty_increments',
-            'qty_increments',
-        ] as $stockColumn) {
-            if (isset($enabledColumns[$stockColumn])) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private function getStatusLabel(int $status): string
     {
         return (string) ($this->productStatus->getOptionText((string) $status) ?: $status);
@@ -216,35 +143,6 @@ class ProductMapper implements ProductMapperInterface
         }
 
         return $this->mediaConfig->getMediaUrl($image);
-    }
-
-    /**
-     * @param int[] $categoryIds
-     * @return string[]
-     */
-    private function getCategoryNames(array $categoryIds): array
-    {
-        $categoryIds = array_values(array_unique(array_filter($categoryIds)));
-        $missingIds = array_diff($categoryIds, array_keys($this->categoryNameCache));
-
-        if (!empty($missingIds)) {
-            $collection = $this->categoryCollectionFactory->create();
-            $collection->addAttributeToSelect('name');
-            $collection->addFieldToFilter('entity_id', ['in' => $missingIds]);
-
-            foreach ($collection as $category) {
-                $this->categoryNameCache[(int) $category->getId()] = (string) $category->getName();
-            }
-        }
-
-        $names = [];
-        foreach ($categoryIds as $categoryId) {
-            if (isset($this->categoryNameCache[$categoryId]) && $this->categoryNameCache[$categoryId] !== '') {
-                $names[] = $this->categoryNameCache[$categoryId];
-            }
-        }
-
-        return array_values($names);
     }
 
     private function formatDecimal(mixed $value): ?string

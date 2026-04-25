@@ -57,6 +57,12 @@
                     ]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="widget_script_url" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Script URL</label>
+                    <comment><![CDATA[
+                        External script loaded before <code>ChatWidget.init()</code> is called. Leave the default value unless SkyCommerce provides a different widget entry URL.
+                    ]]></comment>
+                </field>
                 <field id="user_order_history_limit" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>User Order History Limit</label>
                     <comment><![CDATA[

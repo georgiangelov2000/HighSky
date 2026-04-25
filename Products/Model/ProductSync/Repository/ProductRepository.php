@@ -43,6 +43,14 @@ class ProductRepository implements ProductRepositoryInterface
             $collection->addAttributeToSelect(array_values($attributeCodes));
         }
 
+        // Exclude simple products that are children of a configurable — they appear
+        // as variants on their parent and should not be top-level results.
+        $collection->getSelect()->joinLeft(
+            ['super_link' => $collection->getTable('catalog_product_super_link')],
+            'e.entity_id = super_link.product_id',
+            []
+        )->where('super_link.product_id IS NULL');
+
         if ($updateAfter !== null) {
             $connection = $collection->getConnection();
             $createdAtCondition = $connection->quoteInto('e.created_at > ?', $updateAfter);

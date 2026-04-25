@@ -183,7 +183,7 @@ GET /rest/V1/highsky/sync/products
 
 | Parameter | Type | Required | Default | Validation |
 |-----------|------|----------|---------|------------|
-| `per_page` | integer or integer-like string | No | `100` | Must be an integer, minimum `1`, values above `200` are capped to `200` |
+| `per_page` | integer or integer-like string | No | `200` | Must be an integer, minimum `1`, values above `200` are capped to `200` |
 | `update_after` | string | No | none | Must match exact format `Y-m-d H:i:s` |
 
 **Accepted body parameters**
@@ -301,7 +301,7 @@ GET /rest/V1/highsky/tracking/orders/:orderId
 
 ```bash
 curl -k \
-  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
+  -H "X-SkyCommerce-Auth: <your-auth-token>" \
   "https://magento.test/rest/V1/highsky/tracking/orders/000000001"
 ```
 
@@ -367,7 +367,7 @@ GET /rest/V1/highsky/tracking/users/:userId
 
 ```bash
 curl -k \
-  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
+  -H "X-SkyCommerce-Auth: <your-auth-token>" \
   "https://magento.test/rest/V1/highsky/tracking/users/1"
 ```
 
@@ -410,6 +410,15 @@ GET /rest/V1/highsky/tracking/checkout/:sessionId
 |-----------|------|----------|---------|------------|
 | `sessionId` | string | Yes | none | Trimmed value must not be empty |
 
+The `:sessionId` segment accepts **two formats** — pass whichever you have:
+
+| Format | Example | When you have it |
+|--------|---------|-----------------|
+| Numeric quote ID | `1`, `3` | `cart_session_id` sent by the storefront widget for logged-in sessions |
+| Masked ID | `zoh8fmIBU1WDik6rsJwAjEOow0FVat79` | Guest cart token returned by `POST /rest/V1/guest-carts` |
+
+Both resolve to the same underlying quote. The `session_id` field in the response echoes back exactly what was passed in.
+
 **Accepted query parameters**
 
 - none
@@ -424,35 +433,85 @@ GET /rest/V1/highsky/tracking/checkout/:sessionId
 |--------|------|----------|---------|------------|
 | `X-SkyCommerce-Auth` | string | Yes when tracking auth is enabled | none | Must exactly match configured token |
 
-**Example request**
+**Example — numeric quote ID** (from widget `cart_session_id`)
 
 ```bash
 curl -k \
-  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
-  "https://magento.test/rest/V1/highsky/tracking/checkout/I7eKc4F5cy2b5PBJWzLtxVbzEkfHOJRN"
+  -H "X-SkyCommerce-Auth: <your-auth-token>" \
+  "https://magento.test/rest/V1/highsky/tracking/checkout/1"
 ```
-
-**Example response**
 
 ```json
 {
-  "session_id": "I7eKc4F5cy2b5PBJWzLtxVbzEkfHOJRN",
+  "session_id": "1",
   "quote_id": "1",
-  "is_active": true,
+  "is_active": false,
   "customer_id": "1",
-  "customer_email": "highsky.tracking.seeded@example.com",
+  "customer_email": "roni_cost@example.com",
   "items_count": 1,
   "items_qty": 1,
-  "grand_total": 1999,
+  "grand_total": 36.39,
   "currency_code": "USD",
   "items": [
     {
-      "product_id": "1",
-      "sku": "highsky-tracking-seeded-virtual",
-      "name": "HighSky Seeded Tracking Virtual Product",
-      "qty": 1
+      "product_id": "1428",
+      "sku": "WS03-XS-Red",
+      "name": "Iris Workout Top-XS-Red",
+      "qty": 1,
+      "image_url": "https://magento.test/media/catalog/product/w/s/ws03-red_main_1.jpg"
     }
   ]
+}
+```
+
+**Example — masked ID** (guest cart token)
+
+Create a guest cart first to get a masked ID:
+
+```bash
+curl -k -X POST "https://magento.test/rest/V1/guest-carts" \
+  -H "Content-Type: application/json"
+# returns: "<masked-id>"
+```
+
+Then use it as the session ID:
+
+```bash
+curl -k \
+  -H "X-SkyCommerce-Auth: <your-auth-token>" \
+  "https://magento.test/rest/V1/highsky/tracking/checkout/<masked-id>"
+```
+
+```json
+{
+  "session_id": "<masked-id>",
+  "quote_id": "3",
+  "is_active": true,
+  "customer_id": null,
+  "customer_email": null,
+  "items_count": 1,
+  "items_qty": 2,
+  "grand_total": 58,
+  "currency_code": "USD",
+  "items": [
+    {
+      "product_id": "1415",
+      "sku": "WS03-XS-Red",
+      "name": "Iris Workout Top-XS-Red",
+      "qty": 2,
+      "image_url": "https://magento.test/media/catalog/product/w/s/ws03-red_main_1.jpg"
+    }
+  ]
+}
+```
+
+**Error responses**
+
+Session not found:
+
+```json
+{
+  "message": "Checkout session \"bad-id\" was not found."
 }
 ```
 
@@ -486,7 +545,7 @@ GET /rest/V1/highsky/tracking/widget/startup
 
 ```bash
 curl -k \
-  -H "X-SkyCommerce-Auth: skycommerce-dev-token" \
+  -H "X-SkyCommerce-Auth: <your-auth-token>" \
   "https://magento.test/rest/V1/highsky/tracking/widget/startup"
 ```
 
@@ -565,11 +624,12 @@ php bin/magento cache:flush config
 | Path | Default | Purpose |
 |------|---------|---------|
 | `highsky_products/general/module_enabled` | `1` | Master flag — disables all endpoints and widget when off |
-| `skycommerce/general/tenant_id` | — | Tenant ID injected into the storefront widget |
+| `highsky_products/general/tenant_id` | empty | Tenant ID injected into the storefront widget |
 | `highsky_products/product_sync/enabled` | `1` | Enables `/sync/products` |
 | `highsky_products/tracking/enabled` | `1` | Enables all tracking endpoints and widget |
 | `highsky_products/tracking/auth_required` | `1` | Enforces `X-SkyCommerce-Auth` on all endpoints |
 | `highsky_products/tracking/widget_enabled` | `0` | Enables storefront widget script injection |
+| `highsky_products/tracking/widget_script_url` | `https://cfe.highsky.ai/highsky-chatwidget.js` | External widget script URL |
 | `highsky_products/tracking/user_order_history_limit` | `20` | Max orders returned by the users endpoint |
 | `highsky_products/tracking_authentication/auth_token` | generated | Encrypted auth token — compared against `X-SkyCommerce-Auth` |
 
@@ -602,18 +662,46 @@ The widget is injected on every storefront page via `before.body.end` when all t
 
 **Template:** `StartUpWidget/view/frontend/templates/tracking/widget.phtml`
 
-The template outputs an inline `<script>` block that loads the widget from the HighSky CDN and calls `ChatWidget.init()` with the following config:
+The template renders a self-contained JavaScript IIFE (no RequireJS, no Magento JS framework dependency). It creates a `<script>` element pointing at the external widget URL, waits for it to load, then calls `ChatWidget.init()`:
 
-| Field | Value |
-|-------|-------|
-| `tenantId` | `skycommerce/general/tenant_id` from config |
-| `apiBaseUrl` | `https://cfe.highsky.ai` (hardcoded) |
-| `chat_init_url` | `window.location.href` at page load (client-side) |
-| `cart_session_id` | `null` (reserved for v2) |
-| `user_id` | customer ID from session; `null` for guests |
-| `shop_platform` | `"magento2"` (hardcoded) |
+```html
+<script type="text/javascript">
+(function (d, t) {
+  var v = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
 
-The script URL is `https://cfe.highsky.ai/highsky-chatwidget.js?v=<YYYY-MM-DDTHH>` — the `?v=` parameter rotates every hour to cap browser cache TTL without touching cache-control headers.
+  v.onload = function () {
+    if (window.ChatWidget && typeof window.ChatWidget.init === "function") {
+      window.ChatWidget.init({
+        tenantId:        <?= /* @noEscape */ json_encode($viewModel->getTenantId(), JSON_UNESCAPED_SLASHES) ?>,
+        apiBaseUrl:      <?= /* @noEscape */ json_encode($viewModel->getApiBaseUrl(), JSON_UNESCAPED_SLASHES) ?>,
+        chat_init_url:   window.location.href,
+        cart_session_id: <?= $viewModel->getCartSessionId() ?? 'null' ?>,
+        user_id:         <?= $viewModel->getUserIdJson() ?>,
+        shop_platform:   "magento2",
+      });
+    }
+  };
+
+  v.src = <?= /* @noEscape */ json_encode($viewModel->getScriptUrl(), JSON_UNESCAPED_SLASHES) ?>;
+  v.type = "text/javascript";
+  s.parentNode.insertBefore(v, s);
+})(document, "script");
+</script>
+```
+
+**Init config fields**
+
+| Field | Source | Notes |
+|-------|--------|-------|
+| `tenantId` | `highsky_products/general/tenant_id` from config | Set in admin under General |
+| `apiBaseUrl` | Derived from `widget_script_url` config (scheme + host) | Changes automatically if the script URL is updated in admin |
+| `chat_init_url` | `window.location.href` | Evaluated client-side at page load |
+| `cart_session_id` | Active quote ID from `CheckoutSession` | Numeric quote ID; `null` when no cart exists yet |
+| `user_id` | Customer ID from `CustomerSession` | `null` for guests |
+| `shop_platform` | `"magento2"` | Fixed string |
+
+The script URL comes from `highsky_products/tracking/widget_script_url`. The URL has `?v=<YYYY-MM-DDTHH>` appended so the browser re-fetches the script once per hour without requiring cache-control header changes.
 
 The widget startup endpoint (`/tracking/widget/startup`) is called by the widget itself after load to confirm the widget is still active.
 

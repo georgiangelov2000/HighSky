@@ -32,7 +32,7 @@ class ApiDocsBlock extends Field
                     'name' => 'per_page',
                     'type' => 'integer',
                     'required' => 'No',
-                    'default' => '100',
+                    'default' => '200',
                     'validation' => 'Must be an integer, minimum 1, values above 200 are capped to 200.',
                 ],
                 [

@@ -30,13 +30,10 @@ class TrackingCheckout extends AbstractTrackingEndpoint implements TrackingCheck
 
     public function execute(string $sessionId): TrackingCheckoutResponseInterface
     {
-        return $this->executeWithErrorHandling(function () use ($sessionId): array {
-            $this->trackingAvailabilityValidator->validate();
-            $this->enforceRateLimit('tracking_checkout');
-            $this->authHeaderValidator->validate();
+        return $this->executeProtected('tracking_checkout', function () use ($sessionId): TrackingCheckoutResponseInterface {
             $validatedSessionId = $this->trackingRequestValidator->validateSessionId($sessionId);
 
-            return ['response' => $this->checkoutTrackingService->execute($validatedSessionId)];
-        })['response'];
+            return $this->checkoutTrackingService->execute($validatedSessionId);
+        });
     }
 }

@@ -11,25 +11,24 @@ if (!$viewModel || !$viewModel->isEnabled()) {
 ?>
 <script type="text/javascript">
 (function (d, t) {
-    var v = d.createElement(t),
-        s = d.getElementsByTagName(t)[0];
+  var v = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
 
-    v.onload = function () {
-        if (window.ChatWidget && typeof window.ChatWidget.init === "function") {
-            var chatConfig = {
-                tenantId:        "<?= $block->escapeJs($viewModel->getTenantId()) ?>",
-                apiBaseUrl:      "https://cfe.highsky.ai",
-                chat_init_url:   window.location.href,
-                cart_session_id: null,
-                user_id:         <?= /* @noEscape */ $viewModel->getUserIdJson() ?>,
-                shop_platform:   "magento2"
-            };
-            window.ChatWidget.init(chatConfig);
-        }
-    };
+  v.onload = function () {
+    if (window.ChatWidget && typeof window.ChatWidget.init === "function") {
+      window.ChatWidget.init({
+        tenantId:        <?= /* @noEscape */ json_encode($viewModel->getTenantId(), JSON_UNESCAPED_SLASHES) ?>,
+        apiBaseUrl:      <?= /* @noEscape */ json_encode($viewModel->getApiBaseUrl(), JSON_UNESCAPED_SLASHES) ?>,
+        chat_init_url:   window.location.href,
+        cart_session_id: <?= $viewModel->getCartSessionId() ?? 'null' ?>,
+        user_id:         <?= $viewModel->getUserIdJson() ?>,
+        shop_platform:   "magento2",
+      });
+    }
+  };
 
-    v.src = "https://cfe.highsky.ai/highsky-chatwidget.js?v=<?= date('Y-m-d\TH') ?>";
-    v.type = "text/javascript";
-    s.parentNode.insertBefore(v, s);
+  v.src = <?= /* @noEscape */ json_encode($viewModel->getScriptUrl(), JSON_UNESCAPED_SLASHES) ?>;
+  v.type = "text/javascript";
+  s.parentNode.insertBefore(v, s);
 })(document, "script");
 </script>

@@ -3,107 +3,53 @@ declare(strict_types=1);
 
 namespace HighSky\Shared\Model\Config\Tracking;
 
+use HighSky\Shared\Model\Config\AbstractScopedConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
-use Magento\Store\Model\ScopeInterface;
 
-class TrackingConfig
+class TrackingConfig extends AbstractScopedConfig
 {
     public const XML_PATH_ENABLED = 'highsky_products/tracking/enabled';
     public const XML_PATH_AUTH_REQUIRED = 'highsky_products/tracking/auth_required';
     public const XML_PATH_WIDGET_ENABLED = 'highsky_products/tracking/widget_enabled';
+    public const XML_PATH_WIDGET_SCRIPT_URL = 'highsky_products/tracking/widget_script_url';
     public const XML_PATH_AUTH_TOKEN = 'highsky_products/tracking_authentication/auth_token';
     public const XML_PATH_USER_ORDER_HISTORY_LIMIT = 'highsky_products/tracking/user_order_history_limit';
     public const DEFAULT_USER_ORDER_HISTORY_LIMIT = 20;
+    public const DEFAULT_WIDGET_SCRIPT_URL = 'https://cfe.highsky.ai/highsky-chatwidget.js';
 
     public function __construct(
-        private readonly ScopeConfigInterface $scopeConfig,
+        ScopeConfigInterface $scopeConfig,
         private readonly EncryptorInterface $encryptor
-    ) {}
+    ) {
+        parent::__construct($scopeConfig);
+    }
 
     public function isTrackingEnabled(?string $scopeCode = null): bool
     {
-        $websiteValue = $this->scopeConfig->getValue(
-            self::XML_PATH_ENABLED,
-            ScopeInterface::SCOPE_WEBSITE,
-            $scopeCode
-        );
-
-        if ($websiteValue !== null && $websiteValue !== '') {
-            return $this->scopeConfig->isSetFlag(
-                self::XML_PATH_ENABLED,
-                ScopeInterface::SCOPE_WEBSITE,
-                $scopeCode
-            );
-        }
-
-        return $this->scopeConfig->isSetFlag(self::XML_PATH_ENABLED);
+        return $this->isWebsiteFlagSet(self::XML_PATH_ENABLED, $scopeCode);
     }
 
     public function isAuthRequired(?string $scopeCode = null): bool
     {
-        $websiteValue = $this->scopeConfig->getValue(
-            self::XML_PATH_AUTH_REQUIRED,
-            ScopeInterface::SCOPE_WEBSITE,
-            $scopeCode
-        );
-
-        if ($websiteValue !== null && $websiteValue !== '') {
-            return $this->scopeConfig->isSetFlag(
-                self::XML_PATH_AUTH_REQUIRED,
-                ScopeInterface::SCOPE_WEBSITE,
-                $scopeCode
-            );
-        }
-
-        return $this->scopeConfig->isSetFlag(self::XML_PATH_AUTH_REQUIRED);
+        return $this->isWebsiteFlagSet(self::XML_PATH_AUTH_REQUIRED, $scopeCode);
     }
 
     public function isWidgetEnabled(?string $scopeCode = null): bool
     {
-        $websiteValue = $this->scopeConfig->getValue(
-            self::XML_PATH_WIDGET_ENABLED,
-            ScopeInterface::SCOPE_WEBSITE,
-            $scopeCode
-        );
-
-        if ($websiteValue !== null && $websiteValue !== '') {
-            return $this->scopeConfig->isSetFlag(
-                self::XML_PATH_WIDGET_ENABLED,
-                ScopeInterface::SCOPE_WEBSITE,
-                $scopeCode
-            );
-        }
-
-        return $this->scopeConfig->isSetFlag(self::XML_PATH_WIDGET_ENABLED);
+        return $this->isWebsiteFlagSet(self::XML_PATH_WIDGET_ENABLED, $scopeCode);
     }
 
     public function getWidgetScriptUrl(?string $scopeCode = null): string
     {
-        $value = (string) $this->scopeConfig->getValue(
-            self::XML_PATH_WIDGET_SCRIPT_URL,
-            ScopeInterface::SCOPE_WEBSITE,
-            $scopeCode
-        );
+        $value = $this->getScopedValue(self::XML_PATH_WIDGET_SCRIPT_URL, $scopeCode);
 
-        if ($value === '') {
-            $value = (string) $this->scopeConfig->getValue(self::XML_PATH_WIDGET_SCRIPT_URL);
-        }
-
-        return trim($value);
+        return $value !== '' ? $value : self::DEFAULT_WIDGET_SCRIPT_URL;
     }
 
     public function getAuthToken(?string $scopeCode = null): string
     {
-        $value = (string) $this->scopeConfig->getValue(
-            self::XML_PATH_AUTH_TOKEN,
-            ScopeInterface::SCOPE_WEBSITE,
-            $scopeCode
-        );
-
-        if ($value === '') {
-            $value = (string) $this->scopeConfig->getValue(self::XML_PATH_AUTH_TOKEN);
-        }
+        $value = $this->getScopedValue(self::XML_PATH_AUTH_TOKEN, $scopeCode);
 
         if ($value === '') {
             return '';
@@ -118,22 +64,10 @@ class TrackingConfig
 
     public function getUserOrderHistoryLimit(?string $scopeCode = null): int
     {
-        $rawValue = $this->scopeConfig->getValue(
+        return $this->getPositiveIntegerValue(
             self::XML_PATH_USER_ORDER_HISTORY_LIMIT,
-            ScopeInterface::SCOPE_WEBSITE,
+            self::DEFAULT_USER_ORDER_HISTORY_LIMIT,
             $scopeCode
         );
-
-        if ($rawValue === null || $rawValue === '') {
-            $rawValue = $this->scopeConfig->getValue(self::XML_PATH_USER_ORDER_HISTORY_LIMIT);
-        }
-
-        $value = (int) $rawValue;
-
-        if ($value <= 0) {
-            return self::DEFAULT_USER_ORDER_HISTORY_LIMIT;
-        }
-
-        return $value;
     }
 }

@@ -30,12 +30,8 @@ class TrackingWidgetStartup extends AbstractTrackingEndpoint implements Tracking
 
     public function execute(): TrackingWidgetStartupResponseInterface
     {
-        return $this->executeWithErrorHandling(function (): array {
-            $this->trackingAvailabilityValidator->validate();
-            $this->enforceRateLimit('tracking_widget_startup');
-            $this->authHeaderValidator->validate();
-
-            return ['response' => $this->trackingWidgetStartupService->execute()];
-        })['response'];
+        return $this->executeProtected('tracking_widget_startup', function (): TrackingWidgetStartupResponseInterface {
+            return $this->trackingWidgetStartupService->execute();
+        });
     }
 }
